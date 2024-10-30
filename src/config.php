@@ -16,8 +16,8 @@ return [
     'site' => [
         'url' => $_ENV['SITE_URL'],
         'name' => $_ENV['SITE_NAME'],
-        'enable_subscriptions' => isset($_ENV['ENABLE_SUBSCRIPTIONS']) ? $_ENV['ENABLE_SUBSCRIPTIONS'] : true,
+        'enable_subscriptions' => filter_var($_ENV['ENABLE_SUBSCRIPTIONS'], FILTER_VALIDATE_BOOLEAN),
         'disable_user_metadata_update' => isset($_ENV['DISABLE_USER_METADATA_UPDATE']) ? $_ENV['DISABLE_USER_METADATA_UPDATE'] : false,
-        'debug' => isset($_ENV['DEBUG']) ? $_ENV['DEBUG'] : false
+        'debug' => isset($_ENV['DEBUG']) ? $_ENV['DEBUG'] : null
     ]
 ];
