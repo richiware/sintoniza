@@ -1,6 +1,57 @@
 <?php
 $app_config = require __DIR__ . '/config.php';
 
+require_once __DIR__ . '/inc/DB.php';
+require_once __DIR__ . '/inc/API.php';
+require_once __DIR__ . '/inc/GPodder.php';
+require_once __DIR__ . '/inc/Feed.php';
+require_once __DIR__ . '/inc/functions.php';
+
+error_reporting(E_ALL);
+$backtrace = null;
+
+if (PHP_SAPI === 'cli-server' && file_exists(__DIR__ . $_SERVER['REQUEST_URI']) && !is_dir(__DIR__ . $_SERVER['REQUEST_URI'])) {
+	return false;
+}
+
+set_error_handler(static function ($severity, $message, $file, $line) {
+	if (!(error_reporting() & $severity)) {
+		// Don't report this error (for example @unlink)
+		return;
+	}
+
+	global $backtrace;
+	$backtrace = debug_backtrace();
+
+	throw new \ErrorException($message, 0, $severity, $file, $line);
+});
+
+set_exception_handler(function ($e) {
+	@http_response_code(500);
+	error_log((string)$e);
+	echo '<pre style="background: #fdd; padding: 20px; border: 5px solid darkred; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; white-space: pre-wrap;"><h1>Internal error</h1>';
+
+	error_log((string) $e);
+
+	if (defined('DEBUG') && DEBUG) {
+		echo $e;
+
+		global $backtrace;
+		$backtrace ??= debug_backtrace();
+
+		error_log(print_r($backtrace, true));
+
+		echo '<hr style="margin: 30px 0; border: none; border-top: 5px solid darkred; background: none;" />';
+		print_r($backtrace);
+	}
+	else {
+		echo 'An error happened and has been logged to data/error.log<br />Enable DEBUG constant to see errors directly.';
+	}
+
+	echo '</pre>';
+	exit;
+});
+
 if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
 	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 }
@@ -29,12 +80,6 @@ if (!defined('DEBUG')) {
 	define('DEBUG', $app_config['site']['debug']);
 }
 
-require_once __DIR__ . '/inc/DB.php';
-require_once __DIR__ . '/inc/API.php';
-require_once __DIR__ . '/inc/GPodder.php';
-require_once __DIR__ . '/inc/Feed.php';
-require_once __DIR__ . '/inc/functions.php';
-
 $db = new DB([
 	'host' => $app_config['database']['host'],
 	'database' => $app_config['database']['dbname'],
@@ -46,10 +91,12 @@ $api = new API($db);
 
 try {
 	if ($api->handleRequest()) {
-		return;
+		exit;
 	}
 } catch (JsonException $e) {
-	return;
+	http_response_code(400);
+	echo json_encode(['error' => 'Invalid JSON']);
+	exit;
 }
 
 $gpodder = new GPodder($db);
@@ -59,7 +106,26 @@ if (PHP_SAPI === 'cli') {
 	exit(0);
 }
 
-switch ($api->url) {
+$request_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$request_path = trim($request_path, '/');
+
+switch ($request_path) {
+	case '':
+	case 'index.php':
+		if ($gpodder->user) {
+			$subscriptions = $gpodder->listActiveSubscriptions();
+			view('home/user', [
+				'title' => 'Olá, ' . $gpodder->user->name,
+				'user' => $gpodder->user,
+				'subscriptions' => $subscriptions,
+				'subscription_count' => $gpodder->countActiveSubscriptions(),
+				'gpodder' => $gpodder
+			]);
+		} else {
+			view('home/guest', ['gpodder' => $gpodder]);
+		}
+		break;
+
 	case 'login':
 		$error = $gpodder->login();
 
