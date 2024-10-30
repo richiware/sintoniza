@@ -36,4 +36,10 @@ echo "ADMIN_PASSWORD=${ADMIN_PASSWORD}" >> /var/www/html/.env
 echo "SITE_URL=${SITE_URL}" >> /var/www/html/.env
 echo "SITE_NAME=${SITE_NAME}" >> /var/www/html/.env
 
+if [ -z "${ENABLE_SUBSCRIPTIONS}" ]; then
+    ENABLE_SUBSCRIPTIONS=true
+fi
+
+echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /var/www/html/.env
+
 echo "Variáveis de ambiente salvas com sucesso."
