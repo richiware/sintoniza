@@ -1,6 +1,10 @@
 <?php
 $app_config = require __DIR__ . '/config.php';
 
+if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
+}
+
 if (!defined('BASE_URL')) {
 	define('BASE_URL', $app_config['site']['url']);
 }
@@ -39,7 +43,21 @@ $db = new DB([
 ]);
 
 $api = new API($db);
+
+try {
+	if ($api->handleRequest()) {
+		return;
+	}
+} catch (JsonException $e) {
+	return;
+}
+
 $gpodder = new GPodder($db);
+
+if (PHP_SAPI === 'cli') {
+	$gpodder->updateAllFeeds(true);
+	exit(0);
+}
 
 switch ($api->url) {
 	case 'login':
