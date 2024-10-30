@@ -10,7 +10,7 @@ if (!defined('TITLE')) {
 }
 
 if (!defined('ENABLE_SUBSCRIPTIONS')) {
-	define('ENABLE_SUBSCRIPTIONS', $app_config['site']['enable_subscription']);
+	define('ENABLE_SUBSCRIPTIONS', $app_config['site']['enable_subscriptions']);
 }
 
 if (!defined('ADMIN_PASSWORD')) {
