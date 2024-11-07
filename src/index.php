@@ -124,6 +124,12 @@ function html_head($page_name = null, $logged = false) {
 		<title>' . htmlspecialchars($title) . '</title>
 		<link href="//cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+		<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
+		<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
+		<link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
+		<meta name="apple-mobile-web-app-title" content="MyWebSite" />
+		<link rel="manifest" href="/assets/favicon/site.webmanifest" />
 	</head>
 	<body class="bg-light">
 		<header class="p-3 text-bg-dark">
@@ -152,6 +158,11 @@ function html_head($page_name = null, $logged = false) {
 function html_foot() {
 	echo '</main>
 		</div>
+
+	<footer class="bg-secondary-subtle text-center py-3 mt-3 mt-md-5">
+		<p class="m-0">Instancia gerenciada e mantida por <a class="link-secondary " href="https://pcdomanual.com/" target="_blank">PC do Manual</a> do <a class="link-secondary " href="https://manualdousuario.net" target="_blank">Manual do Usuario</a>.</p>
+		<p class="m-0">Com ❤️ por <a class="link-secondary " href="https://altendorfme.com/" target="_blank">altendorfme</a> · Versão '.VERSION.'</p>
+	</footer>
 	</body>
 	</html> ';
 }

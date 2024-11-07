@@ -4,6 +4,8 @@ require __DIR__ . '/vendor/autoload.php';
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
+define("VERSION", "1.5.1");
+
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
