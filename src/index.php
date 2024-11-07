@@ -573,7 +573,7 @@ else {
     <ul>
         <li>
 			<a target="_blank" href="https://github.com/AntennaPod/AntennaPod">AntennaPod</a> 3.5.0+ - Android
-			<div class="d-block mt-2"><img class="img-thumbnail" src="https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.gif?raw=true" /></div>
+			<div class="d-block mt-2"><video class="img-thumbnail" autoplay loop muted><source src="https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.mp4?raw=true" type="video/mp4" /></video></div>
 		</li>
     </ul>
 	</div>';
