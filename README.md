@@ -8,7 +8,7 @@ Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
 
 - [AntennaPod](https://github.com/AntennaPod/AntennaPod) 3.5.0 - Android
 
-![AntennaPod 3.5.0](https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.gif?raw=true)
+![AntennaPod 3.5.0](https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.mp4?raw=true)
 
 ## Docker
 
