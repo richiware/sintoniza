@@ -160,7 +160,7 @@ function html_foot() {
 		</div>
 
 	<footer class="bg-secondary-subtle text-center py-3 mt-3 mt-md-5">
-		<p class="m-0">Instancia gerenciada e mantida por <a class="link-secondary " href="https://pcdomanual.com/" target="_blank">PC do Manual</a> do <a class="link-secondary " href="https://manualdousuario.net" target="_blank">Manual do Usuario</a>.</p>
+		<p class="m-0">Instância gerenciada e mantida por <a class="link-secondary " href="https://pcdomanual.com/" target="_blank">PC do Manual</a> do <a class="link-secondary " href="https://manualdousuario.net" target="_blank">Manual do Usuario</a>.</p>
 		<p class="m-0">Com ❤️ por <a class="link-secondary " href="https://altendorfme.com/" target="_blank">altendorfme</a> · Versão '.VERSION.'</p>
 	</footer>
 	</body>
