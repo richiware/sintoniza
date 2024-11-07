@@ -569,9 +569,12 @@ else {
     <p>Esse projeto é um fork do <a href="https://github.com/kd2org/opodsync" target="_blank">oPodSync</a></p>
 	<p>Projeto publicado no Github <a href="https://github.com/manualdousuario/sintoniza/" target="_blank">Sintoniza</a></p>
 
-    <h3>Aplicativos suportados</h3>
+    <h3>Aplicativos testados</h3>
     <ul>
-        <li><a target="_blank" href="https://github.com/AntennaPod/AntennaPod">AntennaPod</a> 3.5.0 - Android</li>
+        <li>
+			<a target="_blank" href="https://github.com/AntennaPod/AntennaPod">AntennaPod</a> 3.5.0+ - Android
+			<div class="d-block mt-2"><img class="img-thumbnail" src="https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.gif?raw=true" /></div>
+		</li>
     </ul>
 	</div>';
 
