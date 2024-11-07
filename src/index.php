@@ -116,6 +116,8 @@ function html_head($page_name = null, $logged = false) {
 		$menu_admin = '<li><a href="admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> Administração</a></li>';
 	}
 
+	$description = 'Servidor de sincronização de podcast baseado no protocolo gPodder com suporte ao AntennaPod';
+
 	echo '<!DOCTYPE html>
 	<html lang="en">
 	<head>
@@ -128,8 +130,14 @@ function html_head($page_name = null, $logged = false) {
 		<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
 		<link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
 		<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
-		<meta name="apple-mobile-web-app-title" content="MyWebSite" />
+		<meta name="apple-mobile-web-app-title" content="' . htmlspecialchars($title) . '" />
 		<link rel="manifest" href="/assets/favicon/site.webmanifest" />
+		<meta name="description" content="' . htmlspecialchars($description) . '" />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="'.BASE_URL.'" />
+		<meta property="og:title" content="' . htmlspecialchars($title) . ' - Sincronização de Podcasts" />
+		<meta property="og:description" content="' . htmlspecialchars($description) . '" />
+		<meta property="og:image" content="/assets/opengraph.png" />
 	</head>
 	<body class="bg-light">
 		<header class="p-3 text-bg-dark">
