@@ -1,137 +1,183 @@
 <?php
 
-class DB {
-	protected $pdo;
-	protected $statements = [];
+class DB extends PDO
+{
+    protected array $statements = [];
 
-	public function __construct(array $config)
-	{
-		$dsn = sprintf('mysql:host=%s;dbname=%s;charset=utf8mb4', 
-			$config['host'] ?? 'localhost',
-			$config['database']
-		);
+    public function __construct(string $host, string $dbname, string $user, string $password)
+    {
+        $dsn = sprintf('mysql:host=%s;charset=utf8mb4', $host);
+        
+        // Primeiro conecta sem selecionar o banco de dados
+        parent::__construct($dsn, $user, $password, [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_OBJ,
+            PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::MYSQL_ATTR_FOUND_ROWS => true
+        ]);
 
-		$this->pdo = new PDO($dsn, 
-			$config['username'] ?? 'root',
-			$config['password'] ?? '',
-			[
-				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-				PDO::ATTR_EMULATE_PREPARES => false,
-			]
-		);
-	}
+        $this->exec('SET time_zone = "+00:00"');
+        
+        // Verifica se o banco de dados existe
+        try {
+            $this->exec(sprintf('USE `%s`', $dbname));
+        }
+        catch (PDOException $e) {
+            if ($e->getCode() == 1049) { // Database doesn't exist
+                $this->createDatabase($dbname);
+            } else {
+                throw $e;
+            }
+        }
 
-	public function upsert(string $table, array $params, array $conflict_columns): ?PDOStatement
-	{
-		$columns = array_keys($params);
-		$values = array_map(fn($col) => ":$col", $columns);
-		$updates = array_map(fn($col) => "$col = VALUES($col)", $columns);
+        // Verifica se as tabelas existem
+        if (!$this->checkTablesExist()) {
+            $this->installSchema();
+        }
+    }
 
-		$sql = sprintf(
-			'INSERT INTO %s (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s',
-			$table,
-			implode(', ', $columns),
-			implode(', ', $values),
-			implode(', ', $updates)
-		);
+    protected function createDatabase(string $dbname): void
+    {
+        $this->exec(sprintf('CREATE DATABASE IF NOT EXISTS `%s` 
+            DEFAULT CHARACTER SET utf8mb4 
+            DEFAULT COLLATE utf8mb4_general_ci', $dbname));
+        $this->exec(sprintf('USE `%s`', $dbname));
+    }
 
-		return $this->simple($sql, $params);
-	}
+    protected function checkTablesExist(): bool
+    {
+        $requiredTables = ['users', 'devices', 'episodes', 'episodes_actions', 'feeds', 'subscriptions'];
+        $existingTables = $this->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+        return count(array_intersect($requiredTables, $existingTables)) === count($requiredTables);
+    }
 
-	public function prepare2(string $sql, ...$params): PDOStatement
-	{
-		$hash = md5($sql);
+    protected function installSchema(): void
+    {
+        $sqlFile = __DIR__ . '/mysql.sql';
+        
+        if (!file_exists($sqlFile)) {
+            throw new RuntimeException('Arquivo de esquema mysql.sql não encontrado');
+        }
 
-		if (!array_key_exists($hash, $this->statements)) {
-			$st = $this->statements[$hash] = $this->pdo->prepare($sql);
-		}
-		else {
-			$st = $this->statements[$hash];
-		}
+        $sql = file_get_contents($sqlFile);
+        
+        // Divide o SQL em comandos individuais
+        $commands = array_filter(
+            array_map(
+                'trim',
+                // Divide no final de cada comando preservando comentários
+                preg_split("/;[\r\n]+/", $sql)
+            )
+        );
 
-		if (isset($params[0]) && is_array($params[0])) {
-			$params = $params[0];
-		}
+        $this->exec('SET FOREIGN_KEY_CHECKS = 0');
 
-		foreach ($params as $key => $value) {
-			if (is_int($key)) {
-				$st->bindValue($key + 1, $value);
-			}
-			else {
-				$st->bindValue(':' . $key, $value);
-			}
-		}
+        foreach ($commands as $command) {
+            if (empty($command)) continue;
+            
+            // Ignora comentários e comandos SET
+            if (preg_match('/^(\/\*|SET|--)/i', trim($command))) {
+                continue;
+            }
 
-		return $st;
-	}
+            try {
+                $this->exec($command);
+            }
+            catch (PDOException $e) {
+                $this->exec('SET FOREIGN_KEY_CHECKS = 1');
+                throw new RuntimeException(
+                    sprintf("Erro ao executar o comando SQL: %s\nO comando foi: %s", 
+                        $e->getMessage(), 
+                        $command
+                    )
+                );
+            }
+        }
 
-	public function simple(string $sql, ...$params): ?PDOStatement
-	{
-		$st = $this->prepare2($sql, ...$params);
-		$st->execute();
-		return $st;
-	}
+        $this->exec('SET FOREIGN_KEY_CHECKS = 1');
+    }
 
-	public function firstRow(string $sql, ...$params): ?\stdClass
-	{
-		$row = $this->simple($sql, ...$params)->fetch();
-		return $row ? (object) $row : null;
-	}
+    public function upsert(string $table, array $params, array $conflict_columns): ?PDOStatement
+    {
+        $columns = array_keys($params);
+        $placeholders = array_map(fn($col) => ":$col", $columns);
+        $updates = array_map(fn($col) => "$col = VALUES($col)", $columns);
 
-	public function firstColumn(string $sql, ...$params)
-	{
-		return $this->simple($sql, ...$params)->fetchColumn();
-	}
+        $sql = sprintf(
+            'INSERT INTO %s (%s) VALUES (%s) ON DUPLICATE KEY UPDATE %s',
+            $table,
+            implode(', ', $columns),
+            implode(', ', $placeholders),
+            implode(', ', $updates)
+        );
 
-	public function rowsFirstColumn(string $sql, ...$params): array
-	{
-		$res = $this->simple($sql, ...$params);
-		$out = [];
+        return $this->simple($sql, $params);
+    }
 
-		while ($row = $res->fetchColumn()) {
-			$out[] = $row;
-		}
+    public function prepare2(string $sql, ...$params): PDOStatement
+    {
+        $hash = md5($sql);
 
-		return $out;
-	}
+        if (!array_key_exists($hash, $this->statements)) {
+            $st = $this->statements[$hash] = $this->prepare($sql);
+        }
+        else {
+            $st = $this->statements[$hash];
+        }
 
-	public function iterate(string $sql, ...$params): \Generator
-	{
-		$res = $this->simple($sql, ...$params);
+        if (isset($params[0]) && is_array($params[0])) {
+            $params = $params[0];
+        }
 
-		while ($row = $res->fetch()) {
-			yield (object) $row;
-		}
-	}
+        foreach ($params as $key => $value) {
+            if (is_int($key)) {
+                $st->bindValue($key + 1, $value);
+            }
+            else {
+                $st->bindValue(':' . $key, $value);
+            }
+        }
 
-	public function all(string $sql, ...$params): array
-	{
-		return iterator_to_array($this->iterate($sql, ...$params));
-	}
+        return $st;
+    }
 
-	public function beginTransaction(): bool
-	{
-		return $this->pdo->beginTransaction();
-	}
+    public function simple(string $sql, ...$params): ?PDOStatement
+    {
+        $st = $this->prepare2($sql, ...$params);
+        $st->execute();
+        return $st;
+    }
 
-	public function commit(): bool
-	{
-		return $this->pdo->commit();
-	}
+    public function firstRow(string $sql, ...$params): ?stdClass
+    {
+        $st = $this->simple($sql, ...$params);
+        $row = $st->fetch();
+        return $row ?: null;
+    }
 
-	public function rollBack(): bool
-	{
-		return $this->pdo->rollBack();
-	}
+    public function firstColumn(string $sql, ...$params)
+    {
+        $st = $this->simple($sql, ...$params);
+        return $st->fetchColumn() ?: null;
+    }
 
-	public function lastInsertId(): string
-	{
-		return $this->pdo->lastInsertId();
-	}
+    public function rowsFirstColumn(string $sql, ...$params): array
+    {
+        $st = $this->simple($sql, ...$params);
+        return $st->fetchAll(PDO::FETCH_COLUMN);
+    }
 
-	public function exec(string $sql): int|false
-	{
-		return $this->pdo->exec($sql);
-	}
+    public function iterate(string $sql, ...$params): Generator
+    {
+        $st = $this->simple($sql, ...$params);
+        
+        while ($row = $st->fetch()) {
+            yield $row;
+        }
+    }
+
+    public function all(string $sql, ...$params): array
+    {
+        return iterator_to_array($this->iterate($sql, ...$params));
+    }
 }

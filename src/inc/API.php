@@ -2,10 +2,10 @@
 
 class API
 {
-	protected ?string $method = null;
-	protected ?stdClass $user = null;
-	protected ?string $section = null;
-	public ?string $url = null;
+	protected ?string $method;
+	protected ?stdClass $user;
+	protected ?string $section;
+	public ?string $url;
 	public ?string $base_url;
 	public ?string $base_path;
 	protected ?string $path;
@@ -21,7 +21,7 @@ class API
 
 		if (!$url) {
 			if (!isset($_SERVER['SERVER_PORT'], $_SERVER['SERVER_NAME'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT'])) {
-				echo "Unable to auto-detect application URL, please set BASE_URL constant or environment variable.\n";
+				echo "Não é possível detectar automaticamente a URL do aplicativo. Defina a constante BASE_URL ou a variável de ambiente..\n";
 				exit(1);
 			}
 
@@ -44,17 +44,6 @@ class API
 
 		$this->base_path = parse_url($url, PHP_URL_PATH) ?? '';
 		$this->base_url = $url;
-
-		$this->url = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-		
-		$base_path = trim(parse_url(BASE_URL, PHP_URL_PATH), '/');
-		if ($base_path && str_starts_with($this->url, $base_path)) {
-			$this->url = substr($this->url, strlen($base_path));
-		}
-
-		$this->url = preg_replace('/\.php$/', '', $this->url);
-
-		$this->url = $this->url ?: 'home';
 	}
 
 	public function url(string $path = ''): string
@@ -71,18 +60,22 @@ class API
 		file_put_contents(DEBUG, date('Y-m-d H:i:s ') . vsprintf($message, $params) . PHP_EOL, FILE_APPEND);
 	}
 
-	public function queryWithData(string $sql, ...$params): array {
-		$result = $this->db->iterate($sql, ...$params);
-		$out = [];
+    public function queryWithData(string $sql, ...$params): array {
+        $result = $this->db->iterate($sql, ...$params);
+        $out = [];
 
-		foreach ($result as $row) {
-			$row = array_merge(json_decode($row->data, true, 512, JSON_THROW_ON_ERROR), (array) $row);
-			unset($row['data']);
-			$out[] = $row;
-		}
+        foreach ($result as $row) {
+            // Mudança na manipulação de JSON pois MySQL já retorna como string
+            if (isset($row->data) && is_string($row->data)) {
+                $jsonData = json_decode($row->data, true, 512, JSON_THROW_ON_ERROR);
+                $row = (object) array_merge($jsonData, (array) $row);
+                unset($row->data);
+            }
+            $out[] = (array) $row;
+        }
 
-		return $out;
-	}
+        return $out;
+    }
 
 	/**
 	 * @throws JsonException
@@ -110,7 +103,19 @@ class API
 	 */
 	public function validateURL(string $url): void {
 		if (!preg_match('!^https?://[^/]+!', $url)) {
-			$this->error(400, 'Invalid URL: ' . $url);
+			$this->error(400, 'URL inválida: ' . $url);
+		}
+	}
+
+	public function getDeviceID(string $deviceid, int $user_id) {
+		if (isset($deviceid)) {
+			$this->debug('Procurando o ID do dispositivo para deviceid: %s e usuário: %d', $deviceid, $user_id);
+			$device_id = $this->db->firstColumn('SELECT id FROM devices WHERE deviceid = ? AND user = ?;', $deviceid, $user_id);
+			$this->debug('ID do dispositivo encontrado: %s', $device_id ?? 'null');
+			return $device_id;
+		} else {
+			$this->error(400, 'ID do dispositivo não registrado');
+			return null;
 		}
 	}
 
@@ -141,19 +146,19 @@ class API
 		if ($action === 'logout') {
 			$_SESSION = [];
 			session_destroy();
-			$this->error(200, 'Logged out');
+			$this->error(200, 'Desconectado');
 		}
 		elseif ($action !== 'login') {
-			$this->error(404, 'Unknown login action: ' . $action);
+			$this->error(404, 'Ação de login desconhecida: ' . $action);
 		}
 
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-			$this->error(401, 'No username or password provided');
+			$this->error(401, 'Nenhum nome de usuário ou senha fornecidos');
 		}
 
 		$this->requireAuth();
 
-		$this->error(200, 'Logged in!');
+		$this->error(200, 'Conectado!');
 	}
 
 	public function login()
@@ -164,14 +169,14 @@ class API
 		$user = $this->db->firstRow('SELECT id, password FROM users WHERE name = ?;', $login);
 
 		if(!$user) {
-			$this->error(401, 'Invalid username');
+			$this->error(401, 'Nome de usuário inválido');
 		}
 
 		if (!password_verify($_SERVER['PHP_AUTH_PW'], $user->password ?? '')) {
-			$this->error(401, 'Invalid username/password');
+			$this->error(401, 'Nome de usuário/senha inválidos');
 		}
 
-		$this->debug('Logged user: %s', $login);
+		$this->debug('Usuário conectado: %s', $login);
 
 		@session_start();
 		$_SESSION['user'] = $user;
@@ -190,7 +195,7 @@ class API
 		if ($username && false !== strpos($username, '__')) {
 			$gpodder = new GPodder($this->db);
 			if (!$gpodder->validateToken($username)) {
-				$this->error(401, 'Invalid gpodder token');
+				$this->error(401, 'Token gpodder inválido');
 			}
 
 			$this->user = $gpodder->user;
@@ -204,21 +209,21 @@ class API
 		}
 
 		if (empty($_COOKIE['sessionid'])) {
-			$this->error(401, 'session cookie is required');
+			$this->error(401, 'Cookie de sessão é necessário');
 		}
 
 		@session_start();
 
 		if (empty($_SESSION['user'])) {
-			$this->error(401, 'Expired sessionid cookie, and no Authorization header was provided');
+			$this->error(401, 'Cookie de ID de sessão expirado e nenhum cabeçalho de autorização foi fornecido');
 		}
 
 		if (!$this->db->firstColumn('SELECT 1 FROM users WHERE id = ?;', $_SESSION['user']->id)) {
-			$this->error(401, 'User does not exist');
+			$this->error(401, 'O usuário não existe');
 		}
 
 		$this->user = $_SESSION['user'];
-		$this->debug('Cookie user ID: %s', $this->user->id);
+		$this->debug('ID do usuário do cookie: %s', $this->user->id);
 	}
 
 	/**
@@ -277,14 +282,14 @@ class API
 			$this->requireMethod('POST');
 
 			if (empty($_POST['token']) || !ctype_alnum($_POST['token'])) {
-				$this->error(400, 'Invalid token');
+				$this->error(400, 'Token inválido');
 			}
 
 			session_id($_POST['token']);
 			session_start();
 
 			if (empty($_SESSION['user']) || empty($_SESSION['app_password'])) {
-				$this->error(404, 'Not logged in yet, using token: ' . $_POST['token']);
+				$this->error(404, 'Ainda não conectado, usando token: ' . $_POST['token']);
 			}
 
 			return [
@@ -301,15 +306,15 @@ class API
 		}
 
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-			$this->error(401, 'No username or password provided');
+			$this->error(401, 'Nenhum nome de usuário ou senha fornecidos');
 		}
 
-		$this->debug('Nextcloud compatibility: %s / %s', $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+		$this->debug('Compatibilidade com Nextcloud: %s / %s', $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 
 		$user = $this->db->firstRow('SELECT id, password FROM users WHERE name = ?;', $_SERVER['PHP_AUTH_USER']);
 
 		if (!$user) {
-			$this->error(401, 'Invalid username');
+			$this->error(401, 'Nome de usuário inválido');
 		}
 
 		// FIXME store a real app password instead of this hack
@@ -318,7 +323,7 @@ class API
 		$app_password = sha1($user->password . $token);
 
 		if ($app_password !== $password) {
-			$this->error(401, 'Invalid username/password');
+			$this->error(401, 'Nome de usuário/senha inválidos');
 		}
 
 		$this->user = $_SESSION['user'] = $user;
@@ -335,7 +340,7 @@ class API
 			$this->url = 'api/2/episodes/current.json';
 		}
 		else {
-			$this->error(404, 'Undefined Nextcloud API endpoint');
+			$this->error(404, 'Ponto de extremidade da API Nextcloud indefinido');
 		}
 
 		return null;
@@ -351,7 +356,7 @@ class API
 		$url = substr($url, strlen($this->base_path));
 		$this->url = strtok($url, '?');
 
-		$this->debug('Got a %s request on %s', $this->method, $this->url);
+		$this->debug('Recebi uma solicitação %s em %s', $this->method, $this->url);
 
 		$return = $this->handleNextCloud();
 
@@ -374,7 +379,7 @@ class API
 		}
 
 		if (!in_array($this->format, ['json', 'opml', 'txt'])) {
-			$this->error(501, 'output format is not implemented');
+			$this->error(501, 'Formato de saída não implementado');
 		}
 
 		// For gPodder
@@ -395,7 +400,7 @@ class API
 
 		if ($this->format === 'opml') {
 			if ($this->section !== 'subscriptions') {
-				$this->error(501, 'output format is not implemented');
+				$this->error(501, 'Formato de saída não implementado');
 			}
 
 			header('Content-Type: text/x-opml; charset=utf-8');
@@ -425,7 +430,7 @@ class API
 			$deviceid = explode('/', $this->path)[1] ?? null;
 
 			if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
-				$this->error(400, 'Invalid device ID');
+				$this->error(400, 'ID do dispositivo inválido');
 			}
 
 			$json = $this->getInput();
@@ -440,111 +445,124 @@ class API
 			];
 
 			$this->db->upsert('devices', $params, ['deviceid', 'user']);
-			$this->error(200, 'Device updated');
+			$this->error(200, 'Dispositivo atualizado');
 		}
-		$this->error(400, 'Wrong request method');
+		$this->error(400, 'Método de solicitação incorreto');
 		exit;
 	}
 
 	/**
 	 * @throws JsonException
 	 */
-	public function subscriptions()
-	{
-		$v2 = strpos($this->url, 'api/2/') !== false;
+    public function subscriptions()
+    {
+        $v2 = strpos($this->url, 'api/2/') !== false;
 
-		$deviceid = explode('/', $this->path)[1] ?? null;
+        // We don't care about deviceid yet (FIXME)
+        $deviceid = explode('/', $this->path)[1] ?? null;
 
-		if ($this->method === 'GET' && !$v2) {
-			return $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ?;', $this->user->id);
-		}
+        if ($this->method === 'GET' && !$v2) {
+            return $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ?;', $this->user->id);
+        }
 
-		if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
-			$this->error(400, 'Invalid device ID');
-		}
+        if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
+            $this->error(400, 'ID do dispositivo inválido');
+        }
 
-		if ($v2 && $this->method === 'GET') {
-			$timestamp = (int)($_GET['since'] ?? 0);
+        // Get Subscription Changes
+        if ($v2 && $this->method === 'GET') {
+            $timestamp = (int)($_GET['since'] ?? 0);
 
-			return [
-				'add' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 0 AND changed >= ?;', $this->user->id, $timestamp),
-				'remove' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 1 AND changed >= ?;', $this->user->id, $timestamp),
-				'update_urls' => [],
-				'timestamp' => time(),
-			];
-		}
+            return [
+                'add' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 0 AND changed >= ?;', $this->user->id, $timestamp),
+                'remove' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 1 AND changed >= ?;', $this->user->id, $timestamp),
+                'update_urls' => [],
+                'timestamp' => time(),
+            ];
+        }
 
-		if ($this->method === 'PUT') {
-			$lines = $this->getInput();
+        if ($this->method === 'PUT') {
+            $lines = $this->getInput();
 
-			if (!is_array($lines)) {
-				$this->error(400, 'Invalid input: requires an array with one line per feed');
-			}
+            if (!is_array($lines)) {
+                $this->error(400, 'Entrada inválida: requer uma matriz com uma linha por feed');
+            }
 
-			$this->db->exec('BEGIN;');
-			$st = $this->db->prepare('INSERT OR IGNORE INTO subscriptions (user, url, changed) VALUES (:user, :url, strftime(\'%s\', \'now\'));');
+            try {
+                $this->db->beginTransaction();
+                $st = $this->db->prepare('INSERT IGNORE INTO subscriptions (user, url, changed) VALUES (:user, :url, :changed)');
 
-			foreach ($lines as $url) {
-				$this->validateURL($url);
+                foreach ($lines as $url) {
+                    $this->validateURL($url);
 
-				$st->bindValue(':url', $url);
-				$st->bindValue(':user', $this->user->id);
-				$st->execute();
-				$st->reset();
-				$st->clear();
-			}
+                    $st->execute([
+                        ':url' => $url,
+                        ':user' => $this->user->id,
+                        ':changed' => time()
+                    ]);
+                }
 
-			$this->db->exec('END;');
-			return null;
-		}
+                $this->db->commit();
+                return null;
+            }
+            catch (Exception $e) {
+                $this->db->rollBack();
+                throw $e;
+            }
+        }
 
-		if ($this->method === 'POST') {
-			$input = $this->getInput();
+        if ($this->method === 'POST') {
+            $input = $this->getInput();
 
-			$this->db->exec('BEGIN;');
+            try {
+                $this->db->beginTransaction();
 
-			$ts = time();
+                $ts = time();
 
-			if (!empty($input->add) && is_array($input->add)) {
-				foreach ($input->add as $url) {
-					$this->validateURL($url);
+                if (!empty($input->add) && is_array($input->add)) {
+                    foreach ($input->add as $url) {
+                        $this->validateURL($url);
 
-					$this->db->upsert('subscriptions', [
-						'user'    => $this->user->id,
-						'url'     => $url,
-						'changed' => $ts,
-						'deleted' => 0,
-					], ['user', 'url']);
-				}
-			}
+                        $this->db->upsert('subscriptions', [
+                            'user'    => $this->user->id,
+                            'url'     => $url,
+                            'changed' => $ts,
+                            'deleted' => 0,
+                        ], ['user', 'url']);
+                    }
+                }
 
-			if (!empty($input->remove) && is_array($input->remove)) {
-				foreach ($input->remove as $url) {
-					$this->validateURL($url);
+                if (!empty($input->remove) && is_array($input->remove)) {
+                    foreach ($input->remove as $url) {
+                        $this->validateURL($url);
 
-					$this->db->upsert('subscriptions', [
-						'user'    => $this->user->id,
-						'url'     => $url,
-						'changed' => $ts,
-						'deleted' => 1,
-					], ['user', 'url']);
-				}
-			}
+                        $this->db->upsert('subscriptions', [
+                            'user'    => $this->user->id,
+                            'url'     => $url,
+                            'changed' => $ts,
+                            'deleted' => 1,
+                        ], ['user', 'url']);
+                    }
+                }
 
-			$this->db->exec('END;');
-			return ['timestamp' => $ts, 'update_urls' => []];
-		}
+                $this->db->commit();
+                return ['timestamp' => $ts, 'update_urls' => []];
+            }
+            catch (Exception $e) {
+                $this->db->rollBack();
+                throw $e;
+            }
+        }
 
-		$this->error(501, 'Not implemented yet');
-		exit;
-	}
+        $this->error(501, 'Ainda não implementado');
+    }
 
 	/**
 	 * @throws JsonException
 	 */
 	public function updates(): mixed
 	{
-		$this->error(501, 'Not implemented yet');
+		$this->error(501, 'Ainda não implementado');
 		exit;
 	}
 
@@ -555,60 +573,99 @@ class API
 	{
 		if ($this->method === 'GET') {
 			$since = isset($_GET['since']) ? (int)$_GET['since'] : 0;
-
+	
 			return [
 				'timestamp' => time(),
 				'actions' => $this->queryWithData('SELECT e.url AS episode, e.action, e.data, s.url AS podcast,
-					strftime(\'%Y-%m-%dT%H:%M:%SZ\', e.changed, \'unixepoch\') AS timestamp
+					DATE_FORMAT(FROM_UNIXTIME(e.changed), "%Y-%m-%dT%H:%i:%sZ") AS timestamp
 					FROM episodes_actions e
 					INNER JOIN subscriptions s ON s.id = e.subscription
-					WHERE e.user = ? AND e.changed >= ?;', $this->user->id, $since)
+					WHERE e.user = ? AND e.changed >= ?;', 
+					$this->user->id, 
+					$since
+				)
 			];
 		}
-
+	
 		$this->requireMethod('POST');
-
+	
 		$input = $this->getInput();
-
+	
 		if (!is_array($input)) {
-			$this->error(400, 'No valid array found');
+			$this->error(400, 'Nenhuma matriz válida encontrada');
 		}
-
-		$this->db->exec('BEGIN;');
-
-		$timestamp = time();
-		$st = $this->db->prepare('INSERT INTO episodes_actions (user, subscription, url, changed, action, data) VALUES (:user, :subscription, :url, :changed, :action, :data);');
-
-		foreach ($input as $action) {
-			if (!isset($action->podcast, $action->action, $action->episode)) {
-				$this->error(400, 'Missing required key in action');
+	
+		try {
+			$this->db->beginTransaction();
+	
+			$timestamp = time();
+			$st = $this->db->prepare('INSERT INTO episodes_actions 
+				(user, subscription, url, episode, changed, action, data, device) 
+				VALUES 
+				(:user, :subscription, :url, :episode, :changed, :action, :data, :device)');
+	
+			foreach ($input as $action) {
+				if (!isset($action->podcast, $action->action, $action->episode)) {
+					$this->db->rollBack();
+					$this->error(400, 'Missing required key in action');
+				}
+	
+				$this->validateURL($action->podcast);
+				$this->validateURL($action->episode);
+	
+				// Get subscription ID or create new subscription
+				$subscription_id = $this->db->firstColumn('SELECT id FROM subscriptions WHERE url = ? AND user = ?;', 
+					$action->podcast, 
+					$this->user->id
+				);
+	
+				if (!$subscription_id) {
+					$this->db->simple('INSERT INTO subscriptions (user, url, changed) VALUES (?, ?, ?);', 
+						$this->user->id, 
+						$action->podcast, 
+						$timestamp
+					);
+					$subscription_id = $this->db->lastInsertId();
+				}
+	
+				// Get feed ID from subscription
+				$feed_id = $this->db->firstColumn('SELECT feed FROM subscriptions WHERE id = ?', $subscription_id);
+	
+				// Try to get episode ID from episodes table
+				$episode_id = null;
+				if ($feed_id) {
+					$episode_id = $this->db->firstColumn('SELECT id FROM episodes WHERE media_url = ? AND feed = ?',
+						$action->episode,
+						$feed_id
+					);
+				}
+	
+				// Get device ID if device is provided
+				$device_id = null;
+				if (!empty($action->device)) {
+					$device_id = $this->getDeviceID($action->device, $this->user->id);
+				}
+	
+				$st->bindValue(':user', $this->user->id);
+				$st->bindValue(':subscription', $subscription_id);
+				$st->bindValue(':url', $action->episode);
+				$st->bindValue(':episode', $episode_id); // Pode ser null inicialmente
+				$st->bindValue(':changed', !empty($action->timestamp) ? strtotime($action->timestamp) : $timestamp);
+				$st->bindValue(':action', strtolower($action->action));
+				$st->bindValue(':device', $device_id);
+				unset($action->action, $action->episode, $action->podcast, $action->device);
+				$st->bindValue(':data', json_encode($action, JSON_THROW_ON_ERROR));
+				$st->execute();
 			}
-
-			$this->validateURL($action->podcast);
-			$this->validateURL($action->episode);
-
-			$id = $this->db->firstColumn('SELECT id FROM subscriptions WHERE url = ? AND user = ?;', $action->podcast, $this->user->id);
-
-			if (!$id) {
-				$this->db->simple('INSERT OR IGNORE INTO subscriptions (user, url, changed) VALUES (?, ?, ?);', $this->user->id, $action->podcast, $timestamp);
-				$id = $this->db->lastInsertRowID();
-			}
-
-			$st->bindValue(':user', $this->user->id);
-			$st->bindValue(':subscription', $id);
-			$st->bindValue(':url', $action->episode);
-			$st->bindValue(':changed', !empty($action->timestamp) ? strtotime($action->timestamp) : $timestamp);
-			$st->bindValue(':action', strtolower($action->action));
-			unset($action->action, $action->episode, $action->podcast);
-			$st->bindValue(':data', json_encode($action, JSON_THROW_ON_ERROR));
-			$st->execute();
-			$st->reset();
-			$st->clear();
+	
+			$this->db->commit();
+	
+			return compact('timestamp') + ['update_urls' => []];
 		}
-
-		$this->db->exec('END;');
-
-		return compact('timestamp') + ['update_urls' => []];
+		catch (Exception $e) {
+			$this->db->rollBack();
+			throw $e;
+		}
 	}
 
 	public function opml(array $data): string

@@ -33,30 +33,46 @@ class Feed
 	}
 
 	public function sync(DB $db): void
-	{
-		$db->simple('START TRANSACTION');
-		
-		try {
-			$db->upsert('feeds', $this->export(), ['feed_url']);
-			$feed_id = $db->firstColumn('SELECT id FROM feeds WHERE feed_url = ?;', $this->feed_url);
-			$db->simple('UPDATE subscriptions SET feed = ? WHERE url = ?;', $feed_id, $this->feed_url);
+    {
+        $db->exec('START TRANSACTION');
+        
+        try {
+            // Inserir/atualizar feed
+            $db->upsert('feeds', $this->export(), ['feed_url']);
+            $feed_id = $db->firstColumn('SELECT id FROM feeds WHERE feed_url = ?', $this->feed_url);
+            
+            // Atualizar subscrições
+            $db->simple('UPDATE subscriptions SET feed = ? WHERE url = ?', $feed_id, $this->feed_url);
 
-			foreach ($this->episodes as $episode) {
-				$episode = (array) $episode;
-				$episode['pubdate'] = $episode['pubdate'] ? $episode['pubdate']->format('Y-m-d H:i:s') : null;
-				$episode['feed'] = $feed_id;
-				$db->upsert('episodes', $episode, ['feed', 'media_url']);
-				$id = $db->firstColumn('SELECT id FROM episodes WHERE media_url = ?;', $episode['media_url']);
-				$db->simple('UPDATE episodes_actions SET episode = ? WHERE url = ?;', $id, $episode['media_url']);
-			}
+            // Inserir/atualizar episódios
+            foreach ($this->episodes as $episode) {
+                $episode = (array) $episode;
+                $episode['pubdate'] = $episode['pubdate'] ? $episode['pubdate']->format('Y-m-d H:i:s') : null;
+                $episode['feed'] = $feed_id;
+                
+                $db->upsert('episodes', $episode, ['feed', 'media_url']);
+                
+                // Atualizar referências nas ações
+                $id = $db->firstColumn('SELECT id FROM episodes WHERE media_url = ? AND feed = ?', 
+                    $episode['media_url'], 
+                    $feed_id
+                );
+                
+                if ($id) {
+                    $db->simple('UPDATE episodes_actions SET episode = ? WHERE url = ?', 
+                        $id, 
+                        $episode['media_url']
+                    );
+                }
+            }
 
-			$db->simple('COMMIT');
-		}
-		catch (Exception $e) {
-			$db->simple('ROLLBACK');
-			throw $e;
-		}
-	}
+            $db->exec('COMMIT');
+        }
+        catch (Exception $e) {
+            $db->exec('ROLLBACK');
+            throw $e;
+        }
+    }
 
 	public function fetch(): bool
 	{
@@ -103,40 +119,76 @@ class Feed
 			return false;
 		}
 
-		while (preg_match('!<item[^>]*>(.*?)</item>!s', $body, $match)) {
-			$body = str_replace($match[0], '', $body);
-			$item = $match[1];
-			$pubdate = $this->getTagValue($item, 'pubDate');
-			$url = $this->getTagAttribute($item, 'enclosure', 'url');
+		$xml = simplexml_load_string($body);
+		$xml->registerXPathNamespace('itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd');
 
-			if (!$url) {
-				continue;
+		foreach ($xml->channel->item as $item) {
+
+			$title = isset($item->title) ? trim((string) $item->title) : null;
+			if(isset($item->description)) {
+				$description = trim((string) $item->description);
+			} elseif(isset($item->{'content:encoded'})) {
+				$description = trim((string) $item->{'content:encoded'});
+			} else {
+				$description = null;
+			}
+			$link = isset($item->link) ? trim((string) $item->link) : null;
+			$pubDate = isset($item->pubDate) ? trim((string) $item->pubDate) : null;
+			$audioUrl = isset($item->enclosure['url']) ? trim((string) $item->enclosure['url']) : null;
+
+			if (isset($item->enclosure['length']) && ctype_digit((string) $item->enclosure['length'])) {
+				$duration = (int) $item->enclosure['length'];
+			} elseif (isset($item->xpath('itunes:duration')[0])) {
+				$duration = $this->getDuration((string) $item->xpath('itunes:duration')[0]);
+			} else {
+				$duration = null;
 			}
 
+			if(isset($item->xpath('itunes:image/@href')[0])) {
+				$imageUrl = trim((string) $item->xpath('itunes:image/@href')[0]);
+			} elseif(isset($item->{'media:content'}['url'])) {
+				$imageUrl = trim((string) $item->{'media:content'}['url']);
+			} else {
+				$imageUrl = null;
+			}
+
+			$guid = isset($item->guid) ? trim((string) $item->guid) : null;
+			$creator = isset($item->{'dc:creator'}) ? trim((string) $item->{'dc:creator'}) : null;
+			$episodeType = isset($item->xpath('itunes:episodeType')[0]) ? trim((string) $item->xpath('itunes:episodeType')[0]) : 'Tipo de episódio não disponível';
+
 			$this->episodes[] = (object) [
-				'image_url'   => $this->getTagAttribute($item, 'itunes:image', 'href') ?? $this->getTagValue($item, 'image', 'url'),
-				'url'         => $this->getTagValue($item, 'link'),
-				'media_url'   => $url,
-				'pubdate'     => $pubdate ? new \DateTime($pubdate) : null,
-				'title'       => $this->getTagValue($item, 'title'),
-				'description' => $this->getTagValue($item, 'description') ?? $this->getTagValue($item, 'content:encoded'),
-				'duration'    => $this->getDuration($this->getTagValue($item, 'itunes:duration') ?? $this->getTagAttribute($item, 'enclosure', 'length')),
+				'image_url'   => $imageUrl,
+				'url'         => $link,
+				'media_url'   => $audioUrl,
+				'pubdate'     => $pubDate ? new \DateTime($pubDate) : null,
+				'title'       => $title,
+				'description' => $description,
+				'duration'    => $duration,
 			];
 		}
 
-		$pubdate = $this->getTagValue($body, 'pubDate');
-		$language = $this->getTagValue($body, 'language');
+		$pubdate = $xml->channel->lastBuildDate;
+		$language = $xml->channel->language;
 
-		$this->title = $this->getTagValue($body, 'title');
+		$this->title = $xml->channel->title;
 
 		if (!$this->title) {
 			return false;
 		}
 
-		$this->url = $this->getTagValue($body, 'link');
-		$this->description = $this->getTagValue($body, 'description');
+		$this->url = $xml->channel->link;
+		$this->description = $xml->channel->description;
 		$this->language = $language ? substr($language, 0, 2) : null;
-		$this->image_url = $this->getTagAttribute($body, 'itunes:image', 'href') ?? $this->getTagValue($body, 'image', 'url');
+
+		if(isset($xml->channel->{'itunes:image'}['href'])) {
+			$imageUrl = trim((string) $xml->channel->{'itunes:image'}['href']);
+		} elseif(isset($xml->channel->image->url)) {
+			$imageUrl = trim((string) $xml->channel->image->url);
+		} else {
+			$imageUrl = null;
+		}
+
+		$this->image_url = $imageUrl;
 		$this->pubdate = $pubdate ? new \DateTime($pubdate) : null;
 
 		return true;
@@ -156,44 +208,12 @@ class Feed
 			$duration = (int) $str;
 		}
 
+		// Duration is less than 20 seconds? probably an error
 		if ($duration <= 20) {
 			return null;
 		}
 
 		return $duration;
-	}
-
-	public function getTagValue(string $str, string $name, ?string $sub = null): ?string
-	{
-		if (!preg_match('!<' . $name . '[^>]*>(.*?)</' . $name . '>!is', $str, $match)) {
-			return null;
-		}
-
-		$str = $match[1];
-
-		if ($sub !== null) {
-			return $this->getTagValue($str, $sub);
-		}
-
-		$str = trim(html_entity_decode($str));
-
-		if ($str === '') {
-			return null;
-		}
-
-		$str = str_replace(['<![CDATA[', ']]>'], '', $str);
-		return $str;
-	}
-
-	public function getTagAttribute(string $str, string $name, string $attr): ?string
-	{
-		if (!preg_match('!<' . $name . '[^>]+' . $attr . '=(".*?"|\'.*?\'|[^\s]+)[^>]*>!is', $str, $match)) {
-			return null;
-		}
-
-		$value = trim($match[1], '"\'');
-
-		return trim(rawurldecode(htmlspecialchars_decode($value))) ?: null;
 	}
 
 	public function export(): array

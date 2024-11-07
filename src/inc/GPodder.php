@@ -30,12 +30,8 @@ class GPodder
 
 		$user = $this->db->firstRow('SELECT * FROM users WHERE name = ?;', trim($_POST['login']));
 
-		if (!$user || !password_verify(trim($_POST['password']), $user->password)) {
-			return 'Invalid username/password';
-		}
-
-		if (!$user->active) {
-			return 'This account has been disabled';
+		if (!$user || !password_verify(trim($_POST['password']), $user->password ?? '')) {
+			return 'Nome de usuário/senha inválidos';
 		}
 
 		$_SESSION['user'] = $this->user = $user;
@@ -54,10 +50,7 @@ class GPodder
 
 	public function logout(): void
 	{
-		$this->user = null;
-		unset($_SESSION['user']);
-		unset($_SESSION['app_password']);
-		unset($_SESSION['is_admin']);
+		session_destroy();
 	}
 
 	public function getUserToken(): string
@@ -70,7 +63,7 @@ class GPodder
 		$login = strtok($username, '__');
 		$token = strtok('');
 
-		$this->user = $this->db->firstRow('SELECT * FROM users WHERE name = ? AND active = 1;', $login);
+		$this->user = $this->db->firstRow('SELECT * FROM users WHERE name = ?;', $login);
 
 		if (!$this->user) {
 			return false;
@@ -79,13 +72,37 @@ class GPodder
 		return $username === $this->getUserToken();
 	}
 
-	public function canSubscribe(): bool
+	public function changePassword(string $currentPassword, string $newPassword): ?string
 	{
-		if (isAdmin()) {
-			return true;
+		if (!$this->user) {
+			return 'Usuário não está logado';
 		}
 
-		if (ENABLE_SUBSCRIPTIONS === true) {
+		// Verify current password
+		if (!password_verify(trim($currentPassword), $this->user->password)) {
+			return 'Senha atual incorreta';
+		}
+
+		// Validate new password
+		$newPassword = trim($newPassword);
+		if (strlen($newPassword) < 8) {
+			return 'A nova senha é muito curta (mínimo 8 caracteres)';
+		}
+
+		// Update password in database
+		$hashedPassword = password_hash($newPassword, null);
+		$this->db->simple('UPDATE users SET password = ? WHERE id = ?;', $hashedPassword, $this->user->id);
+
+		// Update session user object
+		$this->user->password = $hashedPassword;
+		$_SESSION['user'] = $this->user;
+
+		return null;
+	}
+
+	public function canSubscribe(): bool
+	{
+		if (ENABLE_SUBSCRIPTIONS) {
 			return true;
 		}
 
@@ -96,30 +113,27 @@ class GPodder
 		return false;
 	}
 
-	public function subscribe(string $name, string $password, bool $skip_captcha = false): ?string
+	public function subscribe(string $name, string $password): ?string
 	{
 		if (trim($name) === '' || !preg_match('/^\w[\w_-]+$/', $name)) {
-			return 'Invalid username. Allowed is: \w[\w\d_-]+';
+			return 'Nome de usuário inválido. Permitido é: \w[\w\d_-]+';
 		}
 
 		if ($name === 'current') {
-			return 'This username is locked, please choose another one.';
+			return 'Este nome de usuário está bloqueado, escolha outro.';
 		}
 
 		$password = trim($password);
 
 		if (strlen($password) < 8) {
-			return 'Password is too short';
+			return 'A senha é muito curta';
 		}
 
 		if ($this->db->firstColumn('SELECT 1 FROM users WHERE name = ?;', $name)) {
-			return 'Username already exists';
+			return 'O nome de usuário já existe';
 		}
 
-		$this->db->simple('INSERT INTO users (name, password) VALUES (?, ?);', 
-			trim($name), 
-			password_hash($password, null)
-		);
+		$this->db->simple('INSERT INTO users (name, password) VALUES (?, ?);', trim($name), password_hash($password, null));
 		return null;
 	}
 
@@ -148,28 +162,39 @@ class GPodder
 		return sha1($captcha . __DIR__) === $check;
 	}
 
-	public function countActiveSubscriptions(): int
-	{
-		return $this->db->firstColumn('SELECT COUNT(*) FROM subscriptions WHERE user = ? AND deleted = 0;', $this->user->id);
-	}
+    public function countActiveSubscriptions(): int
+    {
+        $count = $this->db->firstColumn(
+            'SELECT COUNT(*) FROM subscriptions WHERE user = ? AND deleted = 0',
+            $this->user->id
+        );
+        
+        return (int)$count;
+    }
 
-	public function listActiveSubscriptions(): array
-	{
-		return $this->db->all('SELECT s.*, COUNT(a.id) AS count, f.title, 
-			COALESCE(MAX(a.changed), s.changed) AS last_change
-			FROM subscriptions s
-				LEFT JOIN episodes_actions a ON a.subscription = s.id
-				LEFT JOIN feeds f ON f.id = s.feed
-			WHERE s.user = ? AND s.deleted = 0
-			GROUP BY s.id, s.url, s.changed, f.title
-			ORDER BY last_change DESC;', $this->user->id);
-	}
+    public function listActiveSubscriptions(): array
+    {
+        return $this->db->all('SELECT s.*, 
+            COUNT(a.id) AS count, 
+            f.title, 
+            GREATEST(COALESCE(MAX(a.changed), 0), s.changed) AS last_change
+            FROM subscriptions s
+                LEFT JOIN episodes_actions a ON a.subscription = s.id
+                LEFT JOIN feeds f ON f.id = s.feed
+            WHERE s.user = ? AND s.deleted = 0
+            GROUP BY s.id, s.user, s.url, s.feed, s.changed, s.deleted, f.title
+            ORDER BY last_change DESC', 
+            $this->user->id
+        );
+    }
 
 	public function listActions(int $subscription): array
 	{
 		return $this->db->all('SELECT a.*,
 				d.name AS device_name,
 				e.title,
+				e.image_url,
+				e.duration,
 				e.url AS episode_url
 			FROM episodes_actions a
 				LEFT JOIN devices d ON d.id = a.device AND a.user = d.user
@@ -212,38 +237,41 @@ class GPodder
 		return $feed;
 	}
 
-	public function updateAllFeeds(bool $cli = false): void
-	{
-		$sql = 'SELECT s.id AS subscription, s.url, MAX(a.changed) AS changed
-			FROM subscriptions s
-				LEFT JOIN episodes_actions a ON a.subscription = s.id
-				LEFT JOIN feeds f ON f.id = s.feed
-			WHERE f.last_fetch IS NULL OR f.last_fetch < s.changed OR f.last_fetch < a.changed
-			GROUP BY s.id';
+    public function updateAllFeeds(bool $cli = false): void
+    {
+        $sql = 'SELECT s.id AS subscription, s.url, 
+            GREATEST(COALESCE(MAX(a.changed), 0), s.changed) AS changed
+            FROM subscriptions s
+                LEFT JOIN episodes_actions a ON a.subscription = s.id
+                LEFT JOIN feeds f ON f.id = s.feed
+            WHERE f.last_fetch IS NULL 
+                OR f.last_fetch < s.changed 
+                OR f.last_fetch < COALESCE(a.changed, 0)
+            GROUP BY s.id, s.url, s.changed';
 
-		@ini_set('max_execution_time', 3600);
-		@ob_end_flush();
-		@ob_implicit_flush(true);
-		$i = 0;
+        @ini_set('max_execution_time', 3600);
+        @ob_end_flush();
+        @ob_implicit_flush(true);
+        $i = 0;
 
-		foreach ($this->db->iterate($sql) as $row) {
-			@set_time_limit(30);
+        foreach ($this->db->iterate($sql) as $row) {
+            @set_time_limit(30);
 
-			if ($cli) {
-				printf("Updating %s\n", $row->url);
-			}
-			else {
-				printf("<h4>Updating %s</h4>", $row->url);
-				echo str_pad(' ', 4096);
-				flush();
-			}
+            if ($cli) {
+                printf("Atualizando %s\n", $row->url);
+            }
+            else {
+                printf("<h4>Atualizando %s</h4>", htmlspecialchars($row->url));
+                echo str_pad(' ', 4096);
+                flush();
+            }
 
-			$this->updateFeedForSubscription($row->subscription);
-			$i++;
-		}
+            $this->updateFeedForSubscription($row->subscription);
+            $i++;
+        }
 
-		if (!$i) {
-			echo "Nothing to update\n";
-		}
-	}
+        if (!$i) {
+            echo "Nada para atualizar\n";
+        }
+    }
 }

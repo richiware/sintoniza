@@ -1,7 +1,7 @@
 services:
-  lerama:
-    container_name: lerama
-    image: ghcr.io/manualdousuario/lerama/lerama:latest
+  sintoniza:
+    container_name: sintoniza
+    image: ghcr.io/manualdousuario/sintoniza/sintoniza:latest
     ports:
       - "80:80"
     environment:
@@ -9,9 +9,12 @@ services:
       DB_USERNAME: USUARIO
       DB_PASSWORD: SENHA
       DB_NAME: BANCO_DE_DADOS
-      SITE_URL: https://lerama.xyz
-      SITE_NAME: Lerama
+      BASE_URL: https://sintoniza.xyz
+      TITLE: Sintoniza
       ADMIN_PASSWORD: p@ssw0rd
+      DEBUG: true
+      ENABLE_SUBSCRIPTIONS: true
+      DISABLE_USER_METADATA_UPDATE: false
     depends_on:
       - db
 services:
