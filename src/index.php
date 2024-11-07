@@ -567,6 +567,7 @@ else {
 	echo '<div>
     <p>Este é um servidor de sincronização de podcast baseado no "protocolo" gPodder.</p>
     <p>Esse projeto é um fork do <a href="https://github.com/kd2org/opodsync" target="_blank">oPodSync</a></p>
+	<p>Projeto publicado no Github <a href="https://github.com/manualdousuario/sintoniza/" target="_blank">Sintoniza</a></p>
 
     <h3>Aplicativos suportados</h3>
     <ul>
