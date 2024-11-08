@@ -210,8 +210,8 @@ elseif ($gpodder->user && $api->url === 'admin' && isAdmin()) {
 	}
 
 	// Handle new user registration from admin
-	if (isset($_POST['new_username'], $_POST['new_password'])) {
-		if ($error = $gpodder->subscribe($_POST['new_username'], $_POST['new_password'])) {
+	if (isset($_POST['new_username'], $_POST['new_password'], $_POST['new_email'])) {
+		if ($error = $gpodder->subscribe($_POST['new_username'], $_POST['new_password'], $_POST['new_email'])) {
 			printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($error));
 		} else {
 			echo '<div class="alert alert-success" role="alert">Usuário registrado com sucesso!</div>';
@@ -225,13 +225,17 @@ elseif ($gpodder->user && $api->url === 'admin' && isAdmin()) {
 		<div class="card-body">
 			<h3 class="card-title">Adicionar Novo Usuário</h3>
 			<form method="post" action="" class="row g-3">
-				<div class="col-md-5">
+				<div class="col-md-3">
 					<label for="new_username" class="form-label">Usuário</label>
 					<input type="text" class="form-control" name="new_username" id="new_username" required>
 				</div>
-				<div class="col-md-5">
+				<div class="col-md-3">
 					<label for="new_password" class="form-label">Senha</label>
 					<input type="password" class="form-control" name="new_password" id="new_password" required minlength="8">
+				</div>
+				<div class="col-md-4">
+					<label for="new_email" class="form-label">Email</label>
+					<input type="email" class="form-control" name="new_email" id="new_email" required minlength="8">
 				</div>
 				<div class="col-md-2 d-flex align-items-end">
 					<button type="submit" class="btn btn-primary w-100">
@@ -518,7 +522,7 @@ elseif ($api->url === 'register') {
 		if (!$gpodder->checkCaptcha($_POST['captcha'] ?? '', $_POST['cc'] ?? '')) {
 			echo '<div class="alert alert-danger" role="alert">Invalid captcha.</div>';
 		}
-		elseif ($error = $gpodder->subscribe($_POST['username'] ?? '', $_POST['password'] ?? '')) {
+		elseif ($error = $gpodder->subscribe($_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['email'] ?? '')) {
 			printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($error));
 		}
 		else {
@@ -540,6 +544,10 @@ elseif ($api->url === 'register') {
 	<div class="mb-3">
 	<label for="password" class="form-label">Senha (minimo de 8 caracteres)</label>
 	<input type="password" class="form-control" minlength="8" required name="password" id="password" />
+	</div>
+	<div class="mb-3">
+	<label for="email" class="form-label">Email</label>
+	<input type="email" class="form-control" minlength="8" required name="email" id="email" />
 	</div>
 	<div class="mb-3">
 	<label class="form-label">Captcha</label>

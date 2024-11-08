@@ -113,7 +113,20 @@ class GPodder
 		return false;
 	}
 
-	public function subscribe(string $name, string $password): ?string
+	public function validateEmail(string $email) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+			return false;
+		}
+		
+		$domain = substr(strrchr($email, "@"), 1);
+		if (!checkdnsrr($domain, "MX")) {
+			return false;
+		}
+		
+		return true;
+	}
+
+	public function subscribe(string $name, string $password, string $email): ?string
 	{
 		if (trim($name) === '' || !preg_match('/^\w[\w_-]+$/', $name)) {
 			return 'Nome de usuário inválido. Permitido é: \w[\w\d_-]+';
@@ -129,11 +142,17 @@ class GPodder
 			return 'A senha é muito curta';
 		}
 
+		$email = trim($email);
+
+		if ($this->validateEmail($email) === false) {
+			return 'Email invalido';
+		}
+
 		if ($this->db->firstColumn('SELECT 1 FROM users WHERE name = ?;', $name)) {
 			return 'O nome de usuário já existe';
 		}
 
-		$this->db->simple('INSERT INTO users (name, password) VALUES (?, ?);', trim($name), password_hash($password, null));
+		$this->db->simple('INSERT INTO users (name, password, email) VALUES (?, ?, ?);', trim($name), password_hash($password, null), trim($email));
 		return null;
 	}
 

@@ -108,6 +108,7 @@ CREATE TABLE `users`  (
   `name` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `admin` tinyint(1) NOT NULL DEFAULT 0,
+  `email` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `users_name`(`name`(255)) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
