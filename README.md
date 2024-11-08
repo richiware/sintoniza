@@ -10,6 +10,9 @@ Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
 
 ![AntennaPod 3.5.0](https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.gif?raw=true)
 
+- [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux (Funciona sincronização entre devices)
+- [gPodder](https://gpodder.github.io/) 3.11.4 - Windows/macOS/Linux/BSD
+
 ## Docker
 
 Apos instalar o docker, vamos criar um *compose*:
