@@ -397,10 +397,6 @@ elseif ($gpodder->user) {
 	echo '</div>';
 	echo '</div>';
 
-	echo '<h3 class="mb-3 fs-3">Últimas 10 atualizações</h3>';
-
-	echo '<ul class="list-group">';
-
 	$subscriptions = $gpodder->listActiveSubscriptions();
 	$actions = [];
 	
@@ -414,51 +410,57 @@ elseif ($gpodder->user) {
 	});
 
 	$actions = array_slice($actions, 0, 10);
-	foreach ($actions as $row) {
-		$url = strtok(basename($row->url), '?');
-		strtok('');
-		$title = $row->title ?? $url;
-		$image_url = !empty($row->image_url) ? '<img class="rounded" src="'.$row->image_url.'" width="80" height="80" />' : '' ;
+	
+	if (!empty($actions)) {
+		echo '<h3 class="mb-3 fs-3">Últimas 10 atualizações</h3>';
+		echo '<ul class="list-group">';
+		
+		foreach ($actions as $row) {
+			$url = strtok(basename($row->url), '?');
+			strtok('');
+			$title = $row->title ?? $url;
+			$image_url = !empty($row->image_url) ? '<img class="rounded" src="'.$row->image_url.'" width="80" height="80" />' : '' ;
 
-		if($row->action == 'play') {
-			$action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
-		} else if($row->action == 'download') {
-			$action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
-		} else if($row->action == 'delete') {
-			$action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
-		} else {
-			$action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
-		}
+			if($row->action == 'play') {
+				$action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
+			} else if($row->action == 'download') {
+				$action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
+			} else if($row->action == 'delete') {
+				$action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
+			} else {
+				$action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+			}
 
-		$device_name = $row->device_name ? '<div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
-		$duration = gmdate("H:i:s", $row->duration);
+			$device_name = $row->device_name ? '<div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+			$duration = gmdate("H:i:s", $row->duration);
 
-		printf('<li class="list-group-item p-3">
-				<div class="meta pb-2">
-					%s no %s em <small><time datetime="%s">%s</time></small>
-				</div>
-				<div class="episode_info d-flex flex-wrap gap-3">
-					<div class="thumbnail">%s</div>
-					<div class="data">
-						<a class="link-dark" href="%s">%s</a><br/>
-						Duração: %s<br/>
-						<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+			printf('<li class="list-group-item p-3">
+					<div class="meta pb-2">
+						%s no %s em <small><time datetime="%s">%s</time></small>
 					</div>
-				</div>
-			</li>',
-			$action,
-			$device_name,
-			date(DATE_ISO8601, $row->changed),
-			date('d/m/Y \à\s H:i', $row->changed),
-			$image_url,
-			$row->episode_url,
-			htmlspecialchars($title),
-			$duration,
-			htmlspecialchars($row->url),
-		);
+					<div class="episode_info d-flex flex-wrap gap-3">
+						<div class="thumbnail">%s</div>
+						<div class="data">
+							<a class="link-dark" href="%s">%s</a><br/>
+							Duração: %s<br/>
+							<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+						</div>
+					</div>
+				</li>',
+				$action,
+				$device_name,
+				date(DATE_ISO8601, $row->changed),
+				date('d/m/Y \à\s H:i', $row->changed),
+				$image_url,
+				$row->episode_url,
+				htmlspecialchars($title),
+				$duration,
+				htmlspecialchars($row->url),
+			);
+		}
+		
+		echo '</ul>';
 	}
-
-	echo '</ul>';
 
 	html_foot();
 }
