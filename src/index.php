@@ -233,7 +233,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 		$feed = $gpodder->getFeedForSubscription((int)$_GET['id']);
 
 		if (isset($feed->url, $feed->title, $feed->image_url, $feed->description)) {
-			printf('<div class="row"><div class="d-flex align-items-center"><div class="pe-3"><img class="rounded" width="150" height="150" src="%s"></div><div><h2 class="fs-3"><a href="%s" target="_blank">%s</a></span></h2><p>%s</p></div></div></div>',
+			printf('<div class="row"><div class="col-12 col-md-2"><img class="rounded img-fluid" width="150" height="150" src="%s"></div><div class="col-12 col-md-10"><h2 class="fs-3"><a href="%s" class="link-dark" target="_blank">%s</a></span></h2><p>%s</p></div></div>',
 				$feed->image_url,	
 				htmlspecialchars($feed->url),
 				htmlspecialchars($feed->title),
@@ -249,7 +249,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 			echo '<div class="alert alert-warning mt-3" role="alert">Nenhuma informação disponível neste feed.</div>';
 		}
 
-		echo '<table class="table table-striped"><thead><tr><th scope="col"></th><th style="width: 80px;" scope="col"></th><th>Informações</th><th scope="col"></td><th scope="col"></td></tr></thead><tbody>';
+		echo '<ul class="list-group">';
 
 		foreach ($gpodder->listActions((int)$_GET['id']) as $row) {
 			$url = strtok(basename($row->url), '?');
@@ -270,7 +270,19 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 			$device_name = $row->device_name ? 'em <div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
 			$duration = gmdate("H:i:s", $row->duration);
 
-			printf('<tr><td>%s<br/>%s<br/>em <small><time datetime="%s">%s</time></small></td><td>%s</td><td><a href="%s" target="_blank">%s</a><br/>Duração: %s</td><td><a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a></td></tr>',
+			printf('<li class="list-group-item p-3">
+					<div class="meta pb-2">
+						%s no %s em <small><time datetime="%s">%s</time></small>
+					</div>
+					<div class="episode_info d-flex flex-wrap gap-3">
+						<div class="thumbnail">%s</div>
+						<div class="data">
+							<a class="link-dark" href="%s">%s</a><br/>
+							Duração: %s<br/>
+							<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+						</div>
+					</div>
+				</li>',
 				$action,
 				$device_name,
 				date(DATE_ISO8601, $row->changed),
@@ -281,7 +293,10 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 				$duration,
 				htmlspecialchars($row->url),
 			);
+			
 		}
+
+		echo '</ul>';
 	}
 	else {
 		printf('<form method="post" action=""><div class="flex-wrap d-flex gap-2 pb-4">
@@ -305,9 +320,9 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 				$row->count
 			);
 		}
-	}
 
-	echo '</tbody></table>';
+		echo '</tbody></table>';
+	}
 	html_foot();
 }
 elseif ($gpodder->user && $api->url === 'config') {
@@ -381,6 +396,69 @@ elseif ($gpodder->user) {
 	echo '<small class="d-block">(Use este nome de usuário no <i>GPodder Desktop</i>, pois ele não suporta senhas)</small>';
 	echo '</div>';
 	echo '</div>';
+
+	echo '<h3 class="mb-3 fs-3">Últimas 10 atualizações</h3>';
+
+	echo '<ul class="list-group">';
+
+	$subscriptions = $gpodder->listActiveSubscriptions();
+	$actions = [];
+	
+	foreach ($subscriptions as $sub) {
+		$feed_actions = $gpodder->listActions($sub->id);
+		$actions = array_merge($actions, $feed_actions);
+	}
+
+	usort($actions, function($a, $b) {
+		return $b->changed - $a->changed;
+	});
+
+	$actions = array_slice($actions, 0, 10);
+	foreach ($actions as $row) {
+		$url = strtok(basename($row->url), '?');
+		strtok('');
+		$title = $row->title ?? $url;
+		$image_url = !empty($row->image_url) ? '<img class="rounded" src="'.$row->image_url.'" width="80" height="80" />' : '' ;
+
+		if($row->action == 'play') {
+			$action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
+		} else if($row->action == 'download') {
+			$action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
+		} else if($row->action == 'delete') {
+			$action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
+		} else {
+			$action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+		}
+
+		$device_name = $row->device_name ? '<div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+		$duration = gmdate("H:i:s", $row->duration);
+
+		printf('<li class="list-group-item p-3">
+				<div class="meta pb-2">
+					%s no %s em <small><time datetime="%s">%s</time></small>
+				</div>
+				<div class="episode_info d-flex flex-wrap gap-3">
+					<div class="thumbnail">%s</div>
+					<div class="data">
+						<a class="link-dark" href="%s">%s</a><br/>
+						Duração: %s<br/>
+						<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+					</div>
+				</div>
+			</li>',
+			$action,
+			$device_name,
+			date(DATE_ISO8601, $row->changed),
+			date('d/m/Y \à\s H:i', $row->changed),
+			$image_url,
+			$row->episode_url,
+			htmlspecialchars($title),
+			$duration,
+			htmlspecialchars($row->url),
+		);
+	}
+
+	echo '</ul>';
 
 	html_foot();
 }
