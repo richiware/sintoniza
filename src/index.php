@@ -397,6 +397,34 @@ elseif ($gpodder->user) {
 	echo '</div>';
 	echo '</div>';
 
+	// Get user's registered devices
+	$devices = $db->all('SELECT * FROM devices WHERE user = ? ORDER BY name', $gpodder->user->id);
+	
+	if (!empty($devices)) {
+		echo '<h3 class="mb-3 fs-4">Dispositivos Registrados</h3>';
+		echo '<div class="list-group mb-4">';
+		foreach ($devices as $device) {
+			$data = json_decode($device->data, true);
+			if($data['type'] == 'mobile') {
+				$device_type = 'bi-phone';
+			} else {
+				$device_type = 'bi-window';
+			}
+			printf('<div class="list-group-item py-2 px-3">
+				<div class="d-flex align-items-center">
+					<i class="bi %s fs-4 me-2"></i>
+					<div>
+						<strong>%s</strong>
+					</div>
+				</div>
+			</div>',
+				$device_type,
+				htmlspecialchars($device->name)
+			);
+		}
+		echo '</div>';
+	}
+
 	$subscriptions = $gpodder->listActiveSubscriptions();
 	$actions = [];
 	
@@ -412,7 +440,7 @@ elseif ($gpodder->user) {
 	$actions = array_slice($actions, 0, 10);
 	
 	if (!empty($actions)) {
-		echo '<h3 class="mb-3 fs-3">Últimas 10 atualizações</h3>';
+		echo '<h3 class="mb-3 fs-4">Últimas 10 atualizações</h3>';
 		echo '<ul class="list-group">';
 		
 		foreach ($actions as $row) {
