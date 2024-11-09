@@ -233,7 +233,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 		$feed = $gpodder->getFeedForSubscription((int)$_GET['id']);
 
 		if (isset($feed->url, $feed->title, $feed->image_url, $feed->description)) {
-			printf('<div class="row"><div class="col-12 col-md-2"><img class="rounded img-fluid" width="150" height="150" src="%s"></div><div class="col-12 col-md-10"><h2 class="fs-3"><a href="%s" class="link-dark" target="_blank">%s</a></span></h2><p>%s</p></div></div>',
+			printf('<div class="row"><div class="col-12 col-md-2"><img class="rounded w-100 h-auto" width="150" height="150" src="%s"></div><div class="col-12 col-md-10"><h2 class="fs-3"><a href="%s" class="link-dark" target="_blank">%s</a></span></h2><p>%s</p></div></div>',
 				$feed->image_url,	
 				htmlspecialchars($feed->url),
 				htmlspecialchars($feed->title),
@@ -255,7 +255,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 			$url = strtok(basename($row->url), '?');
 			strtok('');
 			$title = $row->title ?? $url;
-			$image_url = !empty($row->image_url) ? '<img class="rounded" src="'.$row->image_url.'" width="80" height="80" />' : '' ;
+			$image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded" src="'.$row->image_url.'" width="80" height="80" /></div>' : '' ;
 		
 			if($row->action == 'play') {
 				$action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
@@ -275,7 +275,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 						%s no %s em <small><time datetime="%s">%s</time></small>
 					</div>
 					<div class="episode_info d-flex flex-wrap gap-3">
-						<div class="thumbnail">%s</div>
+						%s
 						<div class="data">
 							<a class="link-dark" target="_blank" href="%s">%s</a><br/>
 							Duração: %s<br/>
@@ -447,7 +447,7 @@ elseif ($gpodder->user) {
 			$url = strtok(basename($row->url), '?');
 			strtok('');
 			$title = $row->title ?? $url;
-			$image_url = !empty($row->image_url) ? '<img class="rounded" src="'.$row->image_url.'" width="80" height="80" />' : '' ;
+			$image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded" src="'.$row->image_url.'" width="80" height="80" /></div>' : '' ;
 
 			if($row->action == 'play') {
 				$action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
@@ -467,7 +467,7 @@ elseif ($gpodder->user) {
 						%s no %s em <small><time datetime="%s">%s</time></small>
 					</div>
 					<div class="episode_info d-flex flex-wrap gap-3">
-						<div class="thumbnail">%s</div>
+						%s
 						<div class="data">
 							<a class="link-dark" target="_blank" href="%s">%s</a><br/>
 							Duração: %s<br/>
