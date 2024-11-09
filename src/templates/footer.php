@@ -10,6 +10,7 @@ function html_foot() {
 		<p class="m-0">Com ❤️ por <a class="link-secondary " href="https://altendorfme.com/" target="_blank">altendorfme</a> · Versão '.VERSION.'</p>
 	</footer>
     </div>
+	<script src="//cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 	</body>
 	</html> ';
 }

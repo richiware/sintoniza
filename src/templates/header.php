@@ -46,7 +46,7 @@ function html_head($page_name = null, $logged = false) {
 	</head>
 	<body class="bg-light py-3">
 		<div class="container">
-			<header class="rounded-3 shadow pt-4 pt-md-3 pb-4 pb-md-3 ps-4 pe-4 text-bg-dark">
+			<header class="bg-dark bg-gradient rounded-3 shadow pt-4 pt-md-3 pb-4 pb-md-3 ps-4 pe-4 text-bg-dark">
 				<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 					<a href="/" class="d-flex align-items-center me-lg-3 text-white text-decoration-none">
 						<i class="bi bi-broadcast-pin fs-3"></i><span class="fw-bold ms-3">' . TITLE . '</span>
