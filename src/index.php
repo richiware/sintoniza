@@ -277,7 +277,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 					<div class="episode_info d-flex flex-wrap gap-3">
 						<div class="thumbnail">%s</div>
 						<div class="data">
-							<a class="link-dark" href="%s">%s</a><br/>
+							<a class="link-dark" target="_blank" href="%s">%s</a><br/>
 							Duração: %s<br/>
 							<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
 						</div>
@@ -441,7 +441,7 @@ elseif ($gpodder->user) {
 					<div class="episode_info d-flex flex-wrap gap-3">
 						<div class="thumbnail">%s</div>
 						<div class="data">
-							<a class="link-dark" href="%s">%s</a><br/>
+							<a class="link-dark" target="_blank" href="%s">%s</a><br/>
 							Duração: %s<br/>
 							<a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
 						</div>
