@@ -5,6 +5,8 @@ require_once __DIR__ . '/inc/API.php';
 require_once __DIR__ . '/inc/GPodder.php';
 require_once __DIR__ . '/inc/Feed.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/templates/header.php';
+require_once __DIR__ . '/templates/footer.php';
 
 error_reporting(E_ALL);
 $backtrace = null;
@@ -70,9 +72,7 @@ if (!defined('DISABLE_USER_METADATA_UPDATE')) {
 	define('DISABLE_USER_METADATA_UPDATE', false);
 }
 
-//$db = new DB(DATA_ROOT . '/data.sqlite');
 $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-
 $api = new API($db);
 
 try {
@@ -93,86 +93,6 @@ if (PHP_SAPI === 'cli') {
 function isAdmin(): bool {
     global $gpodder;
     return $gpodder->user && $gpodder->user->admin === 1;
-}
-
-function html_head($page_name = null, $logged = false) {
-	if($page_name == null) {
-		$title = TITLE;
-	} else {
-		$title = TITLE . ' | ' . $page_name;
-	}
-
-	if ($logged == false) {
-		$menu = '<a href="login" class="btn btn-light me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
-		<a href="register" class="btn btn-warning d-flex align-items-center justify-content-center gap-2"><i class="bi bi-person-plus"></i> Registrar</a>';
-	} else {
-		$menu = '<a href="subscriptions" class="btn btn-primary me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-mic-fill"></i> Inscrições</a>
-		<a href="config" class="btn btn-primary me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-nut"></i> Meus dados</a>
-		<a href="logout" class="btn btn-danger me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-right"></i> Sair</a>';
-	}
-
-	$menu_admin = null;
-	if(isAdmin()) {
-		$menu_admin = '<li><a href="admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> Administração</a></li>';
-	}
-
-	$description = 'Servidor de sincronização de podcast baseado no protocolo gPodder com suporte ao AntennaPod';
-
-	echo '<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>' . htmlspecialchars($title) . '</title>
-		<link href="//cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-		<link rel="icon" type="image/png" href="/assets/favicon/favicon-96x96.png" sizes="96x96" />
-		<link rel="icon" type="image/svg+xml" href="/assets/favicon/favicon.svg" />
-		<link rel="shortcut icon" href="/assets/favicon/favicon.ico" />
-		<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon/apple-touch-icon.png" />
-		<meta name="apple-mobile-web-app-title" content="' . htmlspecialchars($title) . '" />
-		<link rel="manifest" href="/assets/favicon/site.webmanifest" />
-		<meta name="description" content="' . htmlspecialchars($description) . '" />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="'.BASE_URL.'" />
-		<meta property="og:title" content="' . htmlspecialchars($title) . ' - Sincronização de Podcasts" />
-		<meta property="og:description" content="' . htmlspecialchars($description) . '" />
-		<meta property="og:image" content="/assets/opengraph.png" />
-	</head>
-	<body class="bg-light">
-		<header class="p-3 text-bg-dark">
-			<div class="container">
-				<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-					<a href="/" class="d-flex align-items-center me-lg-3 text-white text-decoration-none fs-1">
-						<i class="bi bi-broadcast-pin"></i>
-					</a>
-
-					<ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-						<li><a href="/" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-house"></i> Inicio</a></li>
-						'.$menu_admin.'
-					</ul>
-
-					<div class="text-end d-flex align-items-center justify-content-center gap-2">
-					' . $menu . '
-					</div>
-				</div>
-			</div>
-		</header>
-
-		<div class="container py-5">
-			<main>';
-}
-
-function html_foot() {
-	echo '</main>
-		</div>
-
-	<footer class="bg-secondary-subtle text-center py-3 mt-3 mt-md-5">
-		<p class="m-0">Instância gerenciada e mantida por <a class="link-secondary " href="https://pcdomanual.com/" target="_blank">PC do Manual</a> do <a class="link-secondary " href="https://manualdousuario.net" target="_blank">Manual do Usuario</a>.</p>
-		<p class="m-0">Com ❤️ por <a class="link-secondary " href="https://altendorfme.com/" target="_blank">altendorfme</a> · Versão '.VERSION.'</p>
-	</footer>
-	</body>
-	</html> ';
 }
 
 function format_description(string $str): string {
@@ -574,14 +494,16 @@ else {
 
 	echo '<div>
     <p>Este é um servidor de sincronização de podcast baseado no "protocolo" gPodder.</p>
-    <p>Esse projeto é um fork do <a href="https://github.com/kd2org/opodsync" target="_blank">oPodSync</a></p>
-	<p>Projeto publicado no Github <a href="https://github.com/manualdousuario/sintoniza/" target="_blank">Sintoniza</a></p>
+	<ul>
+    	<li>Esse projeto é um fork do <a href="https://github.com/kd2org/opodsync" target="_blank">oPodSync</a></li>
+		<li>Projeto publicado no Github <a href="https://github.com/manualdousuario/sintoniza/" target="_blank">Sintoniza</a></p>
+	</ul>
 
     <h3>Aplicativos testados</h3>
     <ul>
         <li>
 			<a target="_blank" href="https://github.com/AntennaPod/AntennaPod">AntennaPod</a> 3.5.0 - Android
-			<div class="d-block mt-2"><video class="img-thumbnail" autoplay loop muted><source src="https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.mp4?raw=true" type="video/mp4" /></video></div>
+			<div class="d-block mt-2"><video class="img-thumbnail img-fluid" autoplay loop muted><source src="https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.mp4?raw=true" type="video/mp4" /></video></div>
 		</li>
 		<li>
 			<a target="_blank" href="https://invent.kde.org/multimedia/kasts">Kasts</a> 21.88 - <a target="_blank" href="https://cdn.kde.org/ci-builds/multimedia/kasts/">Windows</a>/Android/Linux (Funciona sincronização entre devices)
