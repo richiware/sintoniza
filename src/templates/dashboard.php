@@ -12,12 +12,12 @@ echo '</div>';
     <ul class="nav nav-tabs" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
             <button class="nav-link active" id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="true">
-                Últimas 10 atualizações
+                Últimas atualizações
             </button>
         </li>
         <li class="nav-item" role="presentation">
             <button class="nav-link" id="devices-tab" data-bs-toggle="tab" data-bs-target="#devices" type="button" role="tab" aria-controls="devices" aria-selected="false">
-                Dispositivos registrados
+                Dispositivos
             </button>
         </li>
     </ul>
@@ -65,7 +65,7 @@ echo '</div>';
                                 <div class="meta pb-2">
                                     %s no %s em <small><time datetime="%s">%s</time></small>
                                 </div>
-                                <div class="episode_info d-flex flex-wrap gap-3">
+                                <div class="episode_info d-flex gap-3">
                                     %s
                                     <div class="data">
                                         <a class="link-dark" target="_blank" href="%s">%s</a><br/>

@@ -93,26 +93,23 @@ else {
     <?php } ?>
     <?php
 
-    echo '<table class="table table-striped"><thead><tr><th scope="col">Podcast</th><th scope="col">Última atualização</th></tr></thead><tbody>';
+    echo '<ul class="list-group">';
 
     foreach ($gpodder->listActiveSubscriptions() as $row) {
         $image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border h-auto" src="'.$row->image_url.'" width="80" /></div>' : '' ;
         $title = $row->title ?? str_replace(['http://', 'https://'], '', $row->url);
-        printf('<tr>
-        <td>
-            <div class="d-flex gap-3">
-                %s
-                <div class="meta">
-                    <h2 class="fs-5"><a class="link-dark" href="/dashboard/subscriptions?id=%d">%s</a></h2>
-                    <small>%s</small>
+            printf('
+            <li class="list-group-item p-3">
+                <div class="episode_info d-flex gap-3">
+                    %s
+                    <div class="data">
+                        <h2 class="fs-5"><a class="link-dark" href="/dashboard/subscriptions?id=%d">%s</a></h2>
+                        <small class="d-block">%s</small>
+                        <small><strong>Ultima atualização:</strong> <time datetime="%s" class="text-nowrap">%s</time></small>
+                    </div>
                 </div>
-            </div>
-        </td>
-        <td>
-            <time datetime="%s" class="text-nowrap">%s</time>
-        </td>
-        </tr>',
-        $image_url,
+            </li>',
+            $image_url,
             $row->id,
             htmlspecialchars($title),
             format_description($row->description),
@@ -121,5 +118,5 @@ else {
         );
     }
 
-    echo '</tbody></table>';
+    echo '</ul>';
 }
