@@ -19,7 +19,7 @@ jobs:
       - name: Get version from config.php
         id: get-version
         run: |
-          VERSION=$(grep -Po "(?<=VERSION = ')[^']*" src/config.php)
+          VERSION=$(grep -Po '(?<=define\("VERSION",\s*")[^"]*' src/config.php)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
