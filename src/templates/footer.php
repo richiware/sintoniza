@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../config.php';
-
 function html_foot() {
 	echo '</main>
 		</div>

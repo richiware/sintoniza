@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/../config.php';
-
 function html_head($page_name = null, $logged = false) {
 	if($page_name == null) {
 		$title = TITLE;
@@ -9,23 +7,24 @@ function html_head($page_name = null, $logged = false) {
 	}
 
 	if ($logged == false) {
-		$menu = '<a href="/login" class="btn btn-light d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
-		<a href="/register" class="btn btn-warning d-flex align-items-center justify-content-center gap-2"><i class="bi bi-person-plus"></i> Registrar</a>';
+		$menu = '<a href="/login" class="btn btn-light d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> ' . __('general.login') . '</a>
+		<a href="/register" class="btn btn-warning d-flex align-items-center justify-content-center gap-2"><i class="bi bi-person-plus"></i> ' . __('general.register') . '</a>';
 	} else {
-		$menu = '<a href="/dashboard/subscriptions" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-mic-fill"></i> Inscrições</a>
-		<a href="/dashboard/profile" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-nut"></i> Meus dados</a>
-		<a href="/logout" class="btn btn-danger d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-right"></i> Sair</a>';
+		$menu = '<a href="/dashboard/subscriptions" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-mic-fill"></i> ' . __('general.subscriptions') . '</a>
+		<a href="/dashboard/profile" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-nut"></i> ' . __('general.profile') . '</a>
+		<a href="/logout" class="btn btn-danger d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-right"></i> ' . __('general.logout') . '</a>';
 	}
 
 	$menu_admin = null;
 	if(isAdmin()) {
-		$menu_admin = '<li><a href="/admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> Administração</a></li>';
+		$menu_admin = '<li><a href="/admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> ' . __('general.administration') . '</a></li>';
 	}
 
-	$description = 'Servidor de sincronização de podcast baseado no protocolo gPodder com suporte ao AntennaPod';
+	$description = __('general.site_description');
+	$currentLang = Language::getInstance()->getCurrentLanguage();
 
 	echo '<!DOCTYPE html>
-	<html lang="en">
+	<html lang="' . $currentLang . '">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -40,7 +39,7 @@ function html_head($page_name = null, $logged = false) {
 		<meta name="description" content="' . htmlspecialchars($description) . '" />
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content="'.BASE_URL.'" />
-		<meta property="og:title" content="' . htmlspecialchars($title) . ' - Sincronização de Podcasts" />
+		<meta property="og:title" content="' . htmlspecialchars($title) . ' - ' . __('general.podcast_sync') . '" />
 		<meta property="og:description" content="' . htmlspecialchars($description) . '" />
 		<meta property="og:image" content="/assets/opengraph.png" />
 	</head>
@@ -53,7 +52,7 @@ function html_head($page_name = null, $logged = false) {
 					</a>
 
 					<ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-						<li><a href="/" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-house"></i> Inicio</a></li>
+						<li><a href="/" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-house"></i> ' . __('general.home') . '</a></li>
 						'.$menu_admin.'
 					</ul>
 

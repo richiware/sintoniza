@@ -100,6 +100,32 @@ class GPodder
 		return null;
 	}
 
+	public function updateLanguage(string $language): ?string
+	{
+		if (!$this->user) {
+			return 'Usuário não está logado';
+		}
+
+		// Validate language using Language class
+		$validLanguages = Language::getInstance()->getAvailableLanguages();
+		if (!array_key_exists($language, $validLanguages)) {
+			return 'Idioma inválido';
+		}
+
+		// Update language in database
+		$this->db->simple('UPDATE users SET language = ? WHERE id = ?;', $language, $this->user->id);
+
+		// Update current language instance
+		Language::getInstance()->setLanguage($language);
+
+		// Update session user object
+		$this->user->language = $language;
+		$_SESSION['user'] = $this->user;
+
+
+		return null;
+	}
+
 	public function canSubscribe(): bool
 	{
 		if (ENABLE_SUBSCRIPTIONS) {
@@ -152,7 +178,7 @@ class GPodder
 			return 'O nome de usuário já existe';
 		}
 
-		$this->db->simple('INSERT INTO users (name, password, email) VALUES (?, ?, ?);', trim($name), password_hash($password, null), trim($email));
+		$this->db->simple('INSERT INTO users (name, password, email, language) VALUES (?, ?, ?, en);', trim($name), password_hash($password, null), trim($email));
 		return null;
 	}
 
