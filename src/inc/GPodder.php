@@ -196,6 +196,8 @@ class GPodder
         return $this->db->all('SELECT s.*, 
             COUNT(a.id) AS count, 
             f.title, 
+			f.image_url, 
+			f.description, 
             GREATEST(COALESCE(MAX(a.changed), 0), s.changed) AS last_change
             FROM subscriptions s
                 LEFT JOIN episodes_actions a ON a.subscription = s.id

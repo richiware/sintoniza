@@ -60,18 +60,6 @@ if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVE
 
 ini_set('error_log', __DIR__ . '/logs/error.log');
 
-if (!defined('ENABLE_SUBSCRIPTIONS')) {
-	define('ENABLE_SUBSCRIPTIONS', false);
-}
-
-if (!defined('DEBUG')) {
-	define('DEBUG', null);
-}
-
-if (!defined('DISABLE_USER_METADATA_UPDATE')) {
-	define('DISABLE_USER_METADATA_UPDATE', false);
-}
-
 $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
 $api = new API($db);
 
@@ -206,17 +194,17 @@ elseif ($gpodder->user && $api->url === 'admin' && isAdmin()) {
 
 	html_foot();
 }
-elseif ($gpodder->user && $api->url === 'subscriptions') {
+elseif ($gpodder->user && $api->url === 'dashboard/subscriptions') {
 	html_head('Inscrições', $gpodder->isLogged());
 
 	if (isset($_POST['update']) && !DISABLE_USER_METADATA_UPDATE) {
-		echo '<p><a href="./subscriptions" class="btn btn-danger" aria-label="Voltar">Voltar</a></p>';
+		echo '<p><a href="/dashboard/subscriptions" class="btn btn-danger" aria-label="Voltar">Voltar</a></p>';
 		$gpodder->updateAllFeeds();
 		exit;
 	}
 	elseif (isset($_GET['id'])) {
 		echo '<p>
-			<a href="./subscriptions"class="btn btn-danger" aria-label="Voltar">Voltar</a>
+			<a href="/dashboard/subscriptions"class="btn btn-danger" aria-label="Voltar">Voltar</a>
 		</p>';
 
 		$feed = $gpodder->getFeedForSubscription((int)$_GET['id']);
@@ -286,26 +274,47 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 
 		echo '</ul>';
 	}
-	else {
-		printf('<form method="post" action=""><div class="flex-wrap d-flex gap-2 pb-4">
-			<a href="./" class="btn btn-danger" aria-label="Voltar">Voltar</a>
-			<a href="./subscriptions/%s.opml" target="_blank" class="btn btn-secondary">Feed OPML</a>
-			%s
-		</div></form>',
-			htmlspecialchars($gpodder->user->name),
-			DISABLE_USER_METADATA_UPDATE ? '' : '<button type="submit" class="btn btn-info" name="update" value=1>Atualizar todos os metadados dos feeds</button>',
-		);
+	else { 
+		?>
+		<form method="post" action="">
+			<div class="flex-wrap d-flex gap-2 pb-4">
+				<a href="/dashboard" class="btn btn-danger" aria-label="Voltar">Voltar</a>
+				<a href="/subscriptions/<?php echo htmlspecialchars($gpodder->user->name); ?>.opml" target="_blank" class="btn btn-secondary">Feed OPML</a>
+				<?php if(DISABLE_USER_METADATA_UPDATE == false) { ?>
+					<button type="submit" class="btn btn-info" name="update" value=1>Atualizar todos os metadados dos feeds</button>
+				<?php } ?>
+			</div>
+		</form>
+		<?php if(DISABLE_USER_METADATA_UPDATE) { ?>
+			<div class="alert alert-warning">A atualização de meta dados das inscrições está configurada para ser feita por rotinas diretamente no servidor, as atualização são feitas a cada uma hora.</div>
+		<?php } ?>
+		<?php
 
-		echo '<table class="table table-striped"><thead><tr><th scope="col">Podcast URL</th><th scope="col">Última ação</th><th scope="col">Ações</th></tr></thead><tbody>';
+		echo '<table class="table table-striped"><thead><tr><th scope="col">Podcast</th><th scope="col">Última atualização</th></tr></thead><tbody>';
 
 		foreach ($gpodder->listActiveSubscriptions() as $row) {
+			$image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border h-auto" src="'.$row->image_url.'" width="80" /></div>' : '' ;
 			$title = $row->title ?? str_replace(['http://', 'https://'], '', $row->url);
-			printf('<tr><th scope="row"><a href="?id=%d">%s</a></th><td><time datetime="%s">%s</time></td><td>%d</td></tr>',
+			printf('<tr>
+			<td>
+				<div class="d-flex gap-3">
+					%s
+					<div class="meta">
+						<h2 class="fs-5"><a class="link-dark" href="/dashboard/subscriptions?id=%d">%s</a></h2>
+						<small>%s</small>
+					</div>
+				</div>
+			</td>
+			<td>
+				<time datetime="%s" class="text-nowrap">%s</time>
+			</td>
+			</tr>',
+			$image_url,
 				$row->id,
 				htmlspecialchars($title),
+				format_description($row->description),
 				date(DATE_ISO8601, $row->last_change),
-				date('d/m/Y H:i', $row->last_change),
-				$row->count
+				date('d/m/Y \à\s H:i', $row->last_change)
 			);
 		}
 
@@ -313,7 +322,7 @@ elseif ($gpodder->user && $api->url === 'subscriptions') {
 	}
 	html_foot();
 }
-elseif ($gpodder->user && $api->url === 'config') {
+elseif ($gpodder->user && $api->url === 'dashboard/profile') {
 	html_head('Painel', $gpodder->isLogged());
 
 	if (isset($_GET['oktoken'])) {
@@ -325,7 +334,7 @@ elseif ($gpodder->user && $api->url === 'config') {
 		<div class="col-md-6 col-lg-4">
 			<div class="card shadow">
 				<div class="card-body p-4">
-					<form method="post" action="/config">
+					<form method="post" action="/dashboard/profile">
 						<h3 class="card-title text-center mb-4">Alterar Senha</h3>
 						<?php
 							if (isset($_POST['change_password'])) {
@@ -370,7 +379,7 @@ elseif ($gpodder->user && $api->url === 'config') {
 
 	html_foot();
 }
-elseif ($gpodder->user) {
+elseif ($gpodder->user && $api->url === 'dashboard') {
 	html_head('Painel', $gpodder->isLogged());
 
 	if (isset($_GET['oktoken'])) {
@@ -501,6 +510,11 @@ elseif ($gpodder->user) {
 	<?php
 
 	html_foot();
+}
+elseif ($gpodder->user) {
+	// Redirect to dashboard if user is logged in
+	header('Location: /dashboard');
+	exit;
 }
 elseif ($api->url === 'login') {
 	$error = $gpodder->login();

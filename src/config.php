@@ -3,7 +3,7 @@ require __DIR__ . '/vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
-$version = "1.6.5";
+$version = "1.6.6";
 
 define("VERSION", $version);
 

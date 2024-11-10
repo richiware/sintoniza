@@ -9,17 +9,17 @@ function html_head($page_name = null, $logged = false) {
 	}
 
 	if ($logged == false) {
-		$menu = '<a href="login" class="btn btn-light d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
-		<a href="register" class="btn btn-warning d-flex align-items-center justify-content-center gap-2"><i class="bi bi-person-plus"></i> Registrar</a>';
+		$menu = '<a href="/login" class="btn btn-light d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> Entrar</a>
+		<a href="/register" class="btn btn-warning d-flex align-items-center justify-content-center gap-2"><i class="bi bi-person-plus"></i> Registrar</a>';
 	} else {
-		$menu = '<a href="subscriptions" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-mic-fill"></i> Inscrições</a>
-		<a href="config" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-nut"></i> Meus dados</a>
-		<a href="logout" class="btn btn-danger d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-right"></i> Sair</a>';
+		$menu = '<a href="/dashboard/subscriptions" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-mic-fill"></i> Inscrições</a>
+		<a href="/dashboard/profile" class="btn btn-primary d-flex align-items-center justify-content-center gap-2"><i class="bi bi-nut"></i> Meus dados</a>
+		<a href="/logout" class="btn btn-danger d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-right"></i> Sair</a>';
 	}
 
 	$menu_admin = null;
 	if(isAdmin()) {
-		$menu_admin = '<li><a href="admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> Administração</a></li>';
+		$menu_admin = '<li><a href="/admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> Administração</a></li>';
 	}
 
 	$description = 'Servidor de sincronização de podcast baseado no protocolo gPodder com suporte ao AntennaPod';
