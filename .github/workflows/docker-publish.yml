@@ -1,10 +1,9 @@
-name: GitHub Docker Registry
+name: Sintoniza Docker Publish
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
 
 jobs:
   build:
@@ -15,12 +14,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4.1.7
-
-      - name: Get version from config.php
-        id: get-version
-        run: |
-          VERSION=$(grep -Po '(?<=define\("VERSION",\s*")[^"]*' src/config.php)
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.6.1
@@ -43,9 +36,7 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/sintoniza:latest
-            ghcr.io/${{ github.repository }}/sintoniza:${{ steps.get-version.outputs.version }}
+          tags: ghcr.io/${{ github.repository }}/sintoniza:latest
 
       - name: Verify Docker image
         run: docker images

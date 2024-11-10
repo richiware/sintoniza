@@ -3,8 +3,9 @@ require __DIR__ . '/vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
+$version = "1.6.5";
 
-define("VERSION", "1.6.5");
+define("VERSION", $version);
 
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 
