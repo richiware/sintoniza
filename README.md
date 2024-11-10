@@ -1,10 +1,9 @@
-
 # Sintoniza
 
 Este é um servidor de sincronização de podcast baseado no "protocolo" gPodder.
 Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
 
-### Aplicativos testados
+## Aplicativos testados
 
 - [AntennaPod](https://github.com/AntennaPod/AntennaPod) 3.5.0 - Android
 
@@ -13,9 +12,9 @@ Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
 - [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux (Funciona sincronização entre devices)
 - [gPodder](https://gpodder.github.io/) 3.11.4 - Windows/macOS/Linux/BSD
 
-## Docker
+## Instalação via Docker
 
-Apos instalar o docker, vamos criar um *compose*:
+Após instalar o Docker, vamos criar um *compose*:
 
 `curl -o ./docker-compose.yml https://raw.githubusercontent.com/manualdousuario/sintoniza/main/docker-compose.yml`
 
@@ -65,4 +64,4 @@ Recomendo que utilize o [NGINX Proxy Manager](https://nginxproxymanager.com/) co
 
 As rotinas de coleta de dados irão rodar a cada hora e o log pode ser visto em `/var/log/sintoniza.log`
 
-Uma instalação pública está disponivel em [PC do Manual](https://sintoniza.pcdomanual.com/) 
+Uma instalação pública está disponivel em [PC do Manual](https://sintoniza.pcdomanual.com/)
