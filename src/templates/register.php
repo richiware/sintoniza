@@ -4,12 +4,19 @@ if (!empty($_POST)) {
     if (!$gpodder->checkCaptcha($_POST['captcha'] ?? '', $_POST['cc'] ?? '')) {
         echo '<div class="alert alert-danger" role="alert">'.__('messages.invalid_captcha').'</div>';
     }
-    elseif ($error = $gpodder->subscribe($_POST['username'] ?? '', $_POST['password'] ?? '', $_POST['email'] ?? '')) {
-        printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($error));
-    }
     else {
-        echo '<div class="alert alert-success" role="alert">'.__('admin.user_registered').'</div>';
-        echo '<p><a href="login" class="btn btn-light me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> '.__('general.login').'</a></p>';
+        $email = $_POST['email'] ?? '';
+        $existingUser = $db->getRow('SELECT * FROM users WHERE email = ?', $email);
+        if ($existingUser) {
+            printf('<div class="alert alert-danger" role="alert">%s</div>', __('messages.email_already_registered'));
+        }
+        else if ($error = $gpodder->subscribe($_POST['username'] ?? '', $_POST['password'] ?? '', $email)) {
+            printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($error));
+        }
+        else {
+            echo '<div class="alert alert-success" role="alert">'.__('admin.user_registered').'</div>';
+            echo '<p><a href="login" class="btn btn-light me-2 d-flex align-items-center justify-content-center gap-2"><i class="bi bi-box-arrow-in-right"></i> '.__('general.login').'</a></p>';
+        }
     }
 }
 

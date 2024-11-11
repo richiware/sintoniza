@@ -114,7 +114,8 @@ return [
         'invalid_array' => 'No valid array found',
         'missing_action_key' => 'Missing action key',
         'nextcloud_undefined_endpoint' => 'Undefined Nextcloud API endpoint',
-        'output_format_not_implemented' => 'Output format not implemented'
+        'output_format_not_implemented' => 'Output format not implemented',
+        'email_already_registered' => 'Email address is already registered',
     ],
     'statistics' => [
         'registered_users' => 'Registered Users',

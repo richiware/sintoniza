@@ -114,7 +114,8 @@ return [
         'invalid_array' => 'Nenhuma matriz válida encontrada',
         'missing_action_key' => 'Chave de ação ausente',
         'nextcloud_undefined_endpoint' => 'Ponto de extremidade da API Nextcloud indefinido',
-        'output_format_not_implemented' => 'Formato de saída não implementado'
+        'output_format_not_implemented' => 'Formato de saída não implementado',
+        'email_already_registered' => 'Endereço de e-mail já registrado',
     ],
     'statistics' => [
         'registered_users' => 'Usuários Registrados',
