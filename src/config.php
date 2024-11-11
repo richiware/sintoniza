@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Define
-$version = "1.8.2";
+$version = "1.8.3";
 define("VERSION", $version);
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
@@ -48,7 +48,8 @@ set_error_handler(static function ($severity, $message, $file, $line) {
 set_exception_handler(function ($e) {
 	@http_response_code(500);
 	error_log((string)$e);
-	echo '<pre style="background: #fdd; padding: 20px; border: 5px solid darkred; position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: auto; white-space: pre-wrap;"><h1>Internal error</h1>';
+	echo '<pre class="alert alert-danger">
+	<h1>Internal error</h1>';
 
 	error_log((string) $e);
 
@@ -60,7 +61,7 @@ set_exception_handler(function ($e) {
 
 		error_log(print_r($backtrace, true));
 
-		echo '<hr style="margin: 30px 0; border: none; border-top: 5px solid darkred; background: none;" />';
+		echo '<hr/>';
 		print_r($backtrace);
 	}
 	else {

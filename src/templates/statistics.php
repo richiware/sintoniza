@@ -21,26 +21,12 @@
         ORDER BY subscription_count DESC
         LIMIT 10
     ");
-    
-    $top_downloaded = $db->all("
-        SELECT 
-            e.title,
-            f.title as feed_title,
-            COUNT(ea.id) as download_count
-        FROM episodes e
-        JOIN feeds f ON e.feed = f.id
-        JOIN episodes_actions ea ON ea.episode = e.id
-        WHERE ea.action = 'download'
-        GROUP BY e.id
-        ORDER BY download_count DESC
-        LIMIT 10
-    ");
-    
+
     $top_played = $db->all("
         SELECT 
             e.title,
             f.title as feed_title,
-            COUNT(ea.id) as play_count
+            COUNT(DISTINCT ea.user) as play_count
         FROM episodes e
         JOIN feeds f ON e.feed = f.id
         JOIN episodes_actions ea ON ea.episode = e.id
@@ -80,11 +66,6 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link" id="top_downloaded-tab" data-bs-toggle="tab" data-bs-target="#top_downloaded" type="button" role="tab" aria-controls="top_downloaded" aria-selected="false">
-            <?php echo __('statistics.most_downloaded'); ?>
-        </button>
-    </li>
-    <li class="nav-item" role="presentation">
         <button class="nav-link" id="top_played-tab" data-bs-toggle="tab" data-bs-target="#top_played" type="button" role="tab" aria-controls="top_played" aria-selected="false">
             <?php echo __('statistics.most_played'); ?>
         </button>
@@ -100,19 +81,6 @@
                         <div class="fw-bold"><?php echo htmlspecialchars($feed->title) ?></div>
                     </div>
                     <span class="badge text-bg-primary rounded-pill"><?php echo format_number($feed->subscription_count) ?></span>
-                </li>
-            <?php }; ?>
-        </ol>
-    </div>
-    <div class="tab-pane fade border border-top-0 bg-white rounded-bottom" id="top_downloaded" role="tabpanel" aria-labelledby="top_downloaded-tab">
-        <ol class="list-group list-group-numbered p-3">
-            <?php foreach ($top_downloaded as $i => $episode) { ?>
-                <li class="list-group-item d-flex justify-content-between align-items-start">
-                    <div class="ms-2 me-auto">
-                    <div class="fw-bold"><?php echo htmlspecialchars($episode->title) ?></div>
-                        <?php echo htmlspecialchars($episode->feed_title) ?>
-                    </div>
-                    <span class="badge text-bg-primary rounded-pill"><?php echo format_number($episode->download_count) ?></span>
                 </li>
             <?php }; ?>
         </ol>
