@@ -16,6 +16,11 @@ REQUIRED_ENV_VARS=(
     "DB_PASS"
     "BASE_URL"
     "TITLE"
+	"SMTP_USER"
+    "SMTP_PASS"
+    "SMTP_HOST"
+    "SMTP_FROM"
+    "SMTP_NAME"
 )
 
 for var in "${REQUIRED_ENV_VARS[@]}"; do
@@ -31,6 +36,12 @@ echo "DB_USER=${DB_USER}" >> /var/www/html/.env
 echo "DB_PASS=${DB_PASS}" >> /var/www/html/.env
 echo "BASE_URL=${BASE_URL}" >> /var/www/html/.env
 echo "TITLE=${TITLE}" >> /var/www/html/.env
+
+echo "SMTP_USER=${SMTP_USER}" >> /var/www/html/.env
+echo "SMTP_PASS=${SMTP_PASS}" >> /var/www/html/.env
+echo "SMTP_HOST=${SMTP_HOST}" >> /var/www/html/.env
+echo "SMTP_FROM=${SMTP_FROM}" >> /var/www/html/.env
+echo "SMTP_NAME=${SMTP_NAME}" >> /var/www/html/.env
 
 if [ -z "${DEBUG}" ]; then
     DEBUG=null
