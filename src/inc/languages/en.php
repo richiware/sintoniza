@@ -46,7 +46,10 @@ return [
         'language_updated' => 'Language updated successfully',
         'password_changed' => 'Password changed successfully',
         'passwords_dont_match' => 'New passwords do not match',
-        'min_password_length' => 'Minimum 8 characters'
+        'min_password_length' => 'Minimum 8 characters',
+        'timezone_settings' => 'Timezone Settings',
+        'select_timezone' => 'Select Timezone',
+        'timezone_updated' => 'Timezone updated successfully'
     ],
     'languages' => [
         'en' => 'English',

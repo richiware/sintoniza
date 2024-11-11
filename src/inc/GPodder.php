@@ -122,6 +122,26 @@ class GPodder
 		$this->user->language = $language;
 		$_SESSION['user'] = $this->user;
 
+		return null;
+	}
+
+	public function updateTimezone(string $timezone): ?string
+	{
+		if (!$this->user) {
+			return 'Usuário não está logado';
+		}
+
+		// Validate timezone
+		if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
+			return 'Timezone inválida';
+		}
+
+		// Update timezone in database
+		$this->db->simple('UPDATE users SET timezone = ? WHERE id = ?;', $timezone, $this->user->id);
+
+		// Update session user object
+		$this->user->timezone = $timezone;
+		$_SESSION['user'] = $this->user;
 
 		return null;
 	}
@@ -178,7 +198,7 @@ class GPodder
 			return 'O nome de usuário já existe';
 		}
 
-		$this->db->simple('INSERT INTO users (name, password, email, language) VALUES (?, ?, ?, en);', trim($name), password_hash($password, null), trim($email));
+		$this->db->simple('INSERT INTO users (name, password, email, language, timezone) VALUES (?, ?, ?, ?, ?);', trim($name), password_hash($password, null), trim($email), 'en', 'UTC');
 		return null;
 	}
 

@@ -46,7 +46,10 @@ return [
         'language_updated' => 'Idioma atualizado com sucesso',
         'password_changed' => 'Senha alterada com sucesso',
         'passwords_dont_match' => 'As novas senhas não coincidem',
-        'min_password_length' => 'Mínimo de 8 caracteres'
+        'min_password_length' => 'Mínimo de 8 caracteres',
+        'timezone_settings' => 'Configuração de fuso horário',
+        'select_timezone' => 'Selecionar fuso horário',
+        'timezone_updated' => 'Fuso horário atualizado com sucesso'
     ],
     'languages' => [
         'en' => 'Inglês',
