@@ -126,6 +126,13 @@ elseif ($api->url === 'login') {
 
 	html_foot();
 }
+elseif ($api->url === 'statistics') {
+	html_head('Estatisticas');
+
+	require_once __DIR__ . '/templates/statistics.php';
+
+	html_foot();
+}
 elseif ($api->url === 'register' && !$gpodder->canSubscribe()) {
 	html_head('Registrar');
 	echo '<div class="alert alert-success" role="alert">As assinaturas estão desabilitadas.</div>';

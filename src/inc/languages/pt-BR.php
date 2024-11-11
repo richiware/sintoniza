@@ -19,7 +19,8 @@ return [
         'download' => 'Download',
         'update' => 'Atualizar',
         'hello' => 'Olá',
-        'duration' => 'Duração'
+        'duration' => 'Duração',
+        'statistics' => 'Statistics'
     ],
     'profile' => [
         'title' => 'Perfil do Usuário',

@@ -1,83 +1,82 @@
-<?php
+<h2 class="fs-3 mb-3"><?php echo __('general.subscriptions');?></h2>
 
-if (isset($_POST['update']) && !DISABLE_USER_METADATA_UPDATE) {
-    echo '<p><a href="/dashboard/subscriptions" class="btn btn-danger" aria-label="Voltar">Voltar</a></p>';
+<?php
+if (isset($_POST['update']) && !DISABLE_USER_METADATA_UPDATE) { ?>
+    <p><a href="/dashboard/subscriptions" class="btn btn-danger" aria-label="<?php echo __('general.back');?>"><?php echo __('general.back');?></a></p>
+    <?php
     $gpodder->updateAllFeeds();
     exit;
 }
 elseif (isset($_GET['id'])) {
-    echo '<p>
-        <a href="/dashboard/subscriptions"class="btn btn-danger" aria-label="Voltar">Voltar</a>
-    </p>';
-
+    ?>
+        <p>
+            <a href="/dashboard/subscriptions"class="btn btn-danger" aria-label="<?php echo __('general.back');?>"><?php echo __('general.back');?></a>
+        </p>
+    <?php
     $feed = $gpodder->getFeedForSubscription((int)$_GET['id']);
-
     if (isset($feed->url, $feed->title, $feed->image_url, $feed->description)) {
-        printf('<div class="row"><div class="col-12 col-md-2"><img class="rounded w-100 h-auto border" width="150" height="150" src="%s"></div><div class="col-12 col-md-10"><h2 class="fs-3"><a href="%s" class="link-dark" target="_blank">%s</a></span></h2><p>%s</p></div></div>',
-            $feed->image_url,	
-            htmlspecialchars($feed->url),
-            htmlspecialchars($feed->title),
-            format_description($feed->description)
-        );
-
-        echo '<div class="alert alert-warning mt-3" role="alert">
-        Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados ​​por alguns provedores de podcast.<br/>
-        </div>';
-    }
-    else {
-        echo '<div class="alert alert-warning mt-3" role="alert">Nenhuma informação disponível neste feed.</div>';
-    }
-
-    echo '<ul class="list-group">';
-
-    foreach ($gpodder->listActions((int)$_GET['id']) as $row) {
-        $url = strtok(basename($row->url), '?');
-        strtok('');
-        $title = $row->title ?? $url;
-        $image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border" src="'.$row->image_url.'" width="80" height="80" /></div>' : '' ;
-    
-        if($row->action == 'play') {
-            $action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
-        } else if($row->action == 'download') {
-            $action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
-        } else if($row->action == 'delete') {
-            $action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
-        } else {
-            $action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
-        }
-
-        $device_name = $row->device_name ? 'em <div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
-        $duration = gmdate("H:i:s", $row->duration);
-
-        printf('<li class="list-group-item p-3">
-                <div class="meta pb-2">
-                    %s no %s em <small><time datetime="%s">%s</time></small>
+        ?>
+            <div class="row">
+                <div class="col-12 col-md-2">
+                    <img class="rounded w-100 h-auto border" width="150" height="150" src="<?php echo $feed->image_url; ?>">
                 </div>
-                <div class="episode_info d-flex flex-wrap gap-3">
-                    %s
-                    <div class="data">
-                        <a class="link-dark" target="_blank" href="%s">%s</a><br/>
-                        Duração: %s<br/>
-                        <a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
-                    </div>
+                    <div class="col-12 col-md-10">
+                        <h2 class="fs-3">
+                            <a href="<?php echo htmlspecialchars($feed->url); ?>" class="link-dark" target="_blank"><?php echo htmlspecialchars($feed->title); ?></a>
+                        </span>
+                    </h2>
+                    <p><?php echo format_description($feed->description); ?></p>
                 </div>
-            </li>',
-            $action,
-            $device_name,
-            date(DATE_ISO8601, $row->changed),
-            date('d/m/Y \à\s H:i', $row->changed),
-            $image_url,
-            $row->episode_url,
-            htmlspecialchars($title),
-            $duration,
-            htmlspecialchars($row->url),
-        );
-        
+            </div>
+            <div class="alert alert-warning mt-3" role="alert">
+                Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados ​​por alguns provedores de podcast.<br/>
+            </div>
+        <?php
     }
+    else { ?>
+        <div class="alert alert-warning mt-3" role="alert">Nenhuma informação disponível neste feed.</div>
+    <?php }
+    ?>
+    <ul class="list-group">
+        <?php
+            foreach ($gpodder->listActions((int)$_GET['id']) as $row) {
+                $url = strtok(basename($row->url), '?');
+                strtok('');
+                $title = $row->title ?? $url;
+                $image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border" src="'.$row->image_url.'" width="80" height="80" /></div>' : '' ;
+            
+                if($row->action == 'play') {
+                    $action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
+                } else if($row->action == 'download') {
+                    $action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
+                } else if($row->action == 'delete') {
+                    $action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
+                } else {
+                    $action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+                }
 
-    echo '</ul>';
-}
-else { 
+                $device_name = $row->device_name ? 'em <div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+                $duration = gmdate("H:i:s", $row->duration);
+                ?>
+
+                    <li class="list-group-item p-3">
+                        <div class="meta pb-2">
+                            <?php echo $action; ?> no <?php echo $device_name; ?> em <small><time datetime="<?php echo date(DATE_ISO8601, $row->changed); ?>"><?php echo date('d/m/Y \à\s H:i', $row->changed); ?></time></small>
+                        </div>
+                        <div class="episode_info d-flex flex-wrap gap-3">
+                            <?php echo $image_url; ?>
+                            <div class="data">
+                                <a class="link-dark" target="_blank" href="<?php echo $row->episode_url; ?>"><?php echo htmlspecialchars($title); ?></a><br/>
+                                Duração: <?php echo $duration; ?><br/>
+                                <a href="<?php echo htmlspecialchars($row->url); ?>" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+                            </div>
+                        </div>
+                    </li>
+                <?php
+            }
+        ?>
+    </ul>
+<?php } else { 
     ?>
     <form method="post" action="">
         <div class="flex-wrap d-flex gap-2 pb-4">
