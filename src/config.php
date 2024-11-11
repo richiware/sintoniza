@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Define
-$version = "1.8.1";
+$version = "1.8.2";
 define("VERSION", $version);
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
@@ -18,7 +18,6 @@ define("DEBUG", isset($_ENV['DEBUG']) && $_ENV['DEBUG'] == true ? __DIR__ . '/lo
 define("DISABLE_USER_METADATA_UPDATE", isset($_ENV['DISABLE_USER_METADATA_UPDATE']) ? filter_var($_ENV['DISABLE_USER_METADATA_UPDATE'], FILTER_VALIDATE_BOOLEAN) : false);
 
 // Functions and classes
-
 require_once __DIR__ . '/inc/DB.php';
 require_once __DIR__ . '/inc/API.php';
 require_once __DIR__ . '/inc/GPodder.php';

@@ -81,5 +81,18 @@ return [
         'invalid_captcha' => 'Invalid captcha.',
         'login_success' => 'You are logged in, you can close this and return to the application.',
         'metadata_warning' => 'Episode titles and images may be missing due to trackers/ads used by some podcast providers.'
+    ],
+    'statistics' => [
+        'registered_users' => 'Registered Users',
+        'registered_devices' => 'Registered Devices',
+        'top_10' => 'Top 10',
+        'most_subscribed' => 'Most Subscribed',
+        'most_downloaded' => 'Most Downloaded',
+        'most_played' => 'Most Played'
+    ],
+    'footer' => [
+        'managed_by' => 'Instance managed and maintained by',
+        'with_love_by' => 'With ❤️ by',
+        'version' => 'Version'
     ]
 ];

@@ -56,7 +56,7 @@
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">Usuários Registrados</h5>
+                <h5 class="card-title"><?php echo __('statistics.registered_users'); ?></h5>
                 <p class="display-5 text-primary mb-0"><?php echo format_number($total_users) ?></p>
             </div>
         </div>
@@ -64,29 +64,29 @@
     <div class="col-md-6">
         <div class="card h-100">
             <div class="card-body">
-                <h5 class="card-title">Dispositivos Registrados</h5>
+                <h5 class="card-title"><?php echo __('statistics.registered_devices'); ?></h5>
                 <p class="display-5 text-success mb-0"><?php echo format_number($total_devices) ?></p>
             </div>
         </div>
     </div>
 </div>
 
-<h2 class="fs-4 mb-3">Top 10</h2>
+<h2 class="fs-4 mb-3"><?php echo __('statistics.top_10'); ?></h2>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="top_feeds-tab" data-bs-toggle="tab" data-bs-target="#top_feeds" type="button" role="tab" aria-controls="top_feeds" aria-selected="true">
-            Mais Inscritos
+            <?php echo __('statistics.most_subscribed'); ?>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="top_downloaded-tab" data-bs-toggle="tab" data-bs-target="#top_downloaded" type="button" role="tab" aria-controls="top_downloaded" aria-selected="false">
-            Mais baixados
+            <?php echo __('statistics.most_downloaded'); ?>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="top_played-tab" data-bs-toggle="tab" data-bs-target="#top_played" type="button" role="tab" aria-controls="top_played" aria-selected="false">
-            Mais Tocados
+            <?php echo __('statistics.most_played'); ?>
         </button>
     </li>
 </ul>

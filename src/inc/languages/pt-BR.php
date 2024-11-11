@@ -20,7 +20,7 @@ return [
         'update' => 'Atualizar',
         'hello' => 'Olá',
         'duration' => 'Duração',
-        'statistics' => 'Statistics'
+        'statistics' => 'Estatísticas'
     ],
     'profile' => [
         'title' => 'Perfil do Usuário',
@@ -81,5 +81,18 @@ return [
         'invalid_captcha' => 'Captcha inválido.',
         'login_success' => 'Você está logado, pode fechar isso e voltar para o aplicativo.',
         'metadata_warning' => 'Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados por alguns provedores de podcast.'
+    ],
+    'statistics' => [
+        'registered_users' => 'Usuários Registrados',
+        'registered_devices' => 'Dispositivos Registrados',
+        'top_10' => 'Top 10',
+        'most_subscribed' => 'Mais Inscritos',
+        'most_downloaded' => 'Mais Baixados',
+        'most_played' => 'Mais Tocados'
+    ],
+    'footer' => [
+        'managed_by' => 'Instância gerenciada e mantida por',
+        'with_love_by' => 'Com ❤️ por',
+        'version' => 'Versão'
     ]
 ];
