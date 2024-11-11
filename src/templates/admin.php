@@ -18,11 +18,12 @@
     <div class="tab-pane fade show active border border-top-0 bg-white rounded-bottom" id="user_list" role="tabpanel" aria-labelledby="user_list-tab">
         <ul class="list-group p-3">
             <?php
-                $users = $db->all('SELECT id, name FROM users ORDER BY id DESC');
+                $users = $db->all('SELECT id, name, email FROM users ORDER BY id DESC');
                 foreach ($users as $user) {
             ?>
             <li class="list-group-item p-3">
-                <h2 class="fs-6"><?php echo htmlspecialchars($user->name); ?> (<?php echo $user->id; ?>)</h2>
+                <h2 class="fs-6 m-0 p-0"><?php echo htmlspecialchars($user->name); ?></h2>
+                <small class="d-block mb-2"><?php echo $user->email; ?></small>
                 <form method="post" action="" class="d-inline" onsubmit="return confirm('Tem certeza que deseja deletar este usuário?');">
                     <input type="hidden" name="delete_user" value="<?php echo $user->id; ?>">
                     <button type="submit" class="btn btn-danger btn-sm">

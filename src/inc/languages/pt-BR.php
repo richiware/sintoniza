@@ -20,7 +20,17 @@ return [
         'update' => 'Atualizar',
         'hello' => 'Olá',
         'duration' => 'Duração',
-        'statistics' => 'Estatísticas'
+        'statistics' => 'Estatísticas',
+        'username' => 'Usuário',
+        'password' => 'Senha',
+        'email' => 'Email',
+        'min_password_length' => 'Senha (mínimo de 8 caracteres)',
+        'latest_updates' => 'Últimas atualizações',
+        'devices' => 'Dispositivos'
+    ],
+    'errors' => [
+        'schema_file_not_found' => 'Arquivo de esquema mysql.sql não encontrado',
+        'sql_error' => 'Erro ao executar o comando SQL: %s\nO comando foi: %s'
     ],
     'profile' => [
         'title' => 'Perfil do Usuário',
@@ -57,7 +67,7 @@ return [
         'secret_user_note' => '(Use este nome de usuário no GPodder Desktop, pois ele não suporta senhas)',
         'latest_updates' => 'Últimas 10 atualizações',
         'registered_devices' => 'Dispositivos registrados',
-        'no_info' => 'Nenhuma informação disponível neste feed',
+        'no_info' => 'Nenhuma informação disponível neste feedNenhuma informação disponível neste feed',
         'last_update' => 'Última atualização',
         'update_all_metadata' => 'Atualizar todos os metadados dos feeds',
         'metadata_note' => 'A atualização de meta dados das inscrições está configurada para ser feita por rotinas diretamente no servidor, as atualização são feitas a cada uma hora.',
@@ -80,7 +90,28 @@ return [
         'subscriptions_disabled' => 'As assinaturas estão desabilitadas.',
         'invalid_captcha' => 'Captcha inválido.',
         'login_success' => 'Você está logado, pode fechar isso e voltar para o aplicativo.',
-        'metadata_warning' => 'Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados por alguns provedores de podcast.'
+        'metadata_warning' => 'Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados por alguns provedores de podcast.',
+        'app_requesting_access' => 'Um aplicativo está solicitando acesso à sua conta.',
+        'fill_captcha' => 'Preencha com seguinte número:',
+        'auto_url_error' => 'Não é possível detectar automaticamente a URL do aplicativo. Defina a constante BASE_URL ou a variável de ambiente.',
+        'invalid_url' => 'URL inválida:',
+        'device_id_not_registered' => 'ID do dispositivo não registrado',
+        'invalid_username' => 'Nome de usuário inválido',
+        'invalid_username_password' => 'Nome de usuário/senha inválidos',
+        'no_username_password' => 'Nenhum nome de usuário ou senha fornecidos',
+        'session_cookie_required' => 'Cookie de sessão é necessário',
+        'session_expired' => 'Cookie de ID de sessão expirado e nenhum cabeçalho de autorização foi fornecido',
+        'user_not_exists' => 'O usuário não existe',
+        'logged_out' => 'Desconectado',
+        'unknown_login_action' => 'Ação de login desconhecida:',
+        'invalid_gpodder_token' => 'Token gpodder inválido',
+        'invalid_device_id' => 'ID do dispositivo inválido',
+        'invalid_input_array' => 'Entrada inválida: requer uma matriz com uma linha por feed',
+        'not_implemented' => 'Ainda não implementado',
+        'invalid_array' => 'Nenhuma matriz válida encontrada',
+        'missing_action_key' => 'Chave de ação ausente',
+        'nextcloud_undefined_endpoint' => 'Ponto de extremidade da API Nextcloud indefinido',
+        'output_format_not_implemented' => 'Formato de saída não implementado'
     ],
     'statistics' => [
         'registered_users' => 'Usuários Registrados',
@@ -94,5 +125,11 @@ return [
         'managed_by' => 'Instância gerenciada e mantida por',
         'with_love_by' => 'Com ❤️ por',
         'version' => 'Versão'
+    ],
+    'home' => [
+        'intro' => 'Este é um servidor de sincronização de podcast baseado no "protocolo" gPodder.',
+        'fork_note' => 'Esse projeto é um fork do',
+        'github_project' => 'Projeto publicado no Github',
+        'tested_apps' => 'Aplicativos testados'
     ]
 ];

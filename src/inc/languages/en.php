@@ -20,7 +20,17 @@ return [
         'update' => 'Update',
         'hello' => 'Hello',
         'duration' => 'Duration',
-        'statistics' => 'Statistics'
+        'statistics' => 'Statistics',
+        'username' => 'Username',
+        'password' => 'Password',
+        'email' => 'Email',
+        'min_password_length' => 'Password (minimum 8 characters)',
+        'latest_updates' => 'Latest Updates',
+        'devices' => 'Devices'
+    ],
+    'errors' => [
+        'schema_file_not_found' => 'MySQL schema file not found',
+        'sql_error' => 'Error executing SQL command: %s\nThe command was: %s'
     ],
     'profile' => [
         'title' => 'User Profile',
@@ -80,7 +90,28 @@ return [
         'subscriptions_disabled' => 'Subscriptions are disabled.',
         'invalid_captcha' => 'Invalid captcha.',
         'login_success' => 'You are logged in, you can close this and return to the application.',
-        'metadata_warning' => 'Episode titles and images may be missing due to trackers/ads used by some podcast providers.'
+        'metadata_warning' => 'Episode titles and images may be missing due to trackers/ads used by some podcast providers.',
+        'app_requesting_access' => 'An application is requesting access to your account.',
+        'fill_captcha' => 'Fill in the following number:',
+        'auto_url_error' => 'Cannot automatically detect application URL. Set the BASE_URL constant or environment variable.',
+        'invalid_url' => 'Invalid URL:',
+        'device_id_not_registered' => 'Device ID not registered',
+        'invalid_username' => 'Invalid username',
+        'invalid_username_password' => 'Invalid username/password',
+        'no_username_password' => 'No username or password provided',
+        'session_cookie_required' => 'Session cookie is required',
+        'session_expired' => 'Session ID cookie expired and no authorization header was provided',
+        'user_not_exists' => 'User does not exist',
+        'logged_out' => 'Logged out',
+        'unknown_login_action' => 'Unknown login action:',
+        'invalid_gpodder_token' => 'Invalid gpodder token',
+        'invalid_device_id' => 'Invalid device ID',
+        'invalid_input_array' => 'Invalid input: requires an array with one line per feed',
+        'not_implemented' => 'Not implemented yet',
+        'invalid_array' => 'No valid array found',
+        'missing_action_key' => 'Missing action key',
+        'nextcloud_undefined_endpoint' => 'Undefined Nextcloud API endpoint',
+        'output_format_not_implemented' => 'Output format not implemented'
     ],
     'statistics' => [
         'registered_users' => 'Registered Users',
@@ -94,5 +125,11 @@ return [
         'managed_by' => 'Instance managed and maintained by',
         'with_love_by' => 'With ❤️ by',
         'version' => 'Version'
+    ],
+    'home' => [
+        'intro' => 'This is a podcast synchronization server based on the gPodder "protocol".',
+        'fork_note' => 'This project is a fork of',
+        'github_project' => 'Project published on Github',
+        'tested_apps' => 'Tested Applications'
     ]
 ];

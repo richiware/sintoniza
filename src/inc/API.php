@@ -21,7 +21,7 @@ class API
 
 		if (!$url) {
 			if (!isset($_SERVER['SERVER_PORT'], $_SERVER['SERVER_NAME'], $_SERVER['SCRIPT_FILENAME'], $_SERVER['DOCUMENT_ROOT'])) {
-				echo "Não é possível detectar automaticamente a URL do aplicativo. Defina a constante BASE_URL ou a variável de ambiente..\n";
+				echo __('messages.auto_url_error') . "\n";
 				exit(1);
 			}
 
@@ -103,7 +103,7 @@ class API
 	 */
 	public function validateURL(string $url): void {
 		if (!preg_match('!^https?://[^/]+!', $url)) {
-			$this->error(400, 'URL inválida: ' . $url);
+			$this->error(400, __('messages.invalid_url') . ' ' . $url);
 		}
 	}
 
@@ -114,7 +114,7 @@ class API
 			$this->debug('ID do dispositivo encontrado: %s', $device_id ?? 'null');
 			return $device_id;
 		} else {
-			$this->error(400, 'ID do dispositivo não registrado');
+			$this->error(400, __('messages.device_id_not_registered'));
 			return null;
 		}
 	}
@@ -146,19 +146,19 @@ class API
 		if ($action === 'logout') {
 			$_SESSION = [];
 			session_destroy();
-			$this->error(200, 'Desconectado');
+			$this->error(200, __('messages.logged_out'));
 		}
 		elseif ($action !== 'login') {
-			$this->error(404, 'Ação de login desconhecida: ' . $action);
+			$this->error(404, __('messages.unknown_login_action') . ' ' . $action);
 		}
 
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-			$this->error(401, 'Nenhum nome de usuário ou senha fornecidos');
+			$this->error(401, __('messages.no_username_password'));
 		}
 
 		$this->requireAuth();
 
-		$this->error(200, 'Conectado!');
+		$this->error(200, __('messages.login_success'));
 	}
 
 	public function login()
@@ -169,11 +169,11 @@ class API
 		$user = $this->db->firstRow('SELECT id, password FROM users WHERE name = ?;', $login);
 
 		if(!$user) {
-			$this->error(401, 'Nome de usuário inválido');
+			$this->error(401, __('messages.invalid_username'));
 		}
 
 		if (!password_verify($_SERVER['PHP_AUTH_PW'], $user->password ?? '')) {
-			$this->error(401, 'Nome de usuário/senha inválidos');
+			$this->error(401, __('messages.invalid_username_password'));
 		}
 
 		$this->debug('Usuário conectado: %s', $login);
@@ -195,7 +195,7 @@ class API
 		if ($username && false !== strpos($username, '__')) {
 			$gpodder = new GPodder($this->db);
 			if (!$gpodder->validateToken($username)) {
-				$this->error(401, 'Token gpodder inválido');
+				$this->error(401, __('messages.invalid_gpodder_token'));
 			}
 
 			$this->user = $gpodder->user;
@@ -209,17 +209,17 @@ class API
 		}
 
 		if (empty($_COOKIE['sessionid'])) {
-			$this->error(401, 'Cookie de sessão é necessário');
+			$this->error(401, __('messages.session_cookie_required'));
 		}
 
 		@session_start();
 
 		if (empty($_SESSION['user'])) {
-			$this->error(401, 'Cookie de ID de sessão expirado e nenhum cabeçalho de autorização foi fornecido');
+			$this->error(401, __('messages.session_expired'));
 		}
 
 		if (!$this->db->firstColumn('SELECT 1 FROM users WHERE id = ?;', $_SESSION['user']->id)) {
-			$this->error(401, 'O usuário não existe');
+			$this->error(401, __('messages.user_not_exists'));
 		}
 
 		$this->user = $_SESSION['user'];
@@ -251,7 +251,7 @@ class API
 			case 'settings':
 			case 'lists':
 			case 'sync-device':
-				$this->error(503, 'Not implemented');
+				$this->error(503, __('messages.not_implemented'));
 			default:
 				return null;
 		}
@@ -282,14 +282,14 @@ class API
 			$this->requireMethod('POST');
 
 			if (empty($_POST['token']) || !ctype_alnum($_POST['token'])) {
-				$this->error(400, 'Token inválido');
+				$this->error(400, __('messages.invalid_gpodder_token'));
 			}
 
 			session_id($_POST['token']);
 			session_start();
 
 			if (empty($_SESSION['user']) || empty($_SESSION['app_password'])) {
-				$this->error(404, 'Ainda não conectado, usando token: ' . $_POST['token']);
+				$this->error(404, __('messages.session_expired'));
 			}
 
 			return [
@@ -306,7 +306,7 @@ class API
 		}
 
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
-			$this->error(401, 'Nenhum nome de usuário ou senha fornecidos');
+			$this->error(401, __('messages.no_username_password'));
 		}
 
 		$this->debug('Compatibilidade com Nextcloud: %s / %s', $_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
@@ -314,7 +314,7 @@ class API
 		$user = $this->db->firstRow('SELECT id, password FROM users WHERE name = ?;', $_SERVER['PHP_AUTH_USER']);
 
 		if (!$user) {
-			$this->error(401, 'Nome de usuário inválido');
+			$this->error(401, __('messages.invalid_username'));
 		}
 
 		// FIXME store a real app password instead of this hack
@@ -323,7 +323,7 @@ class API
 		$app_password = sha1($user->password . $token);
 
 		if ($app_password !== $password) {
-			$this->error(401, 'Nome de usuário/senha inválidos');
+			$this->error(401, __('messages.invalid_username_password'));
 		}
 
 		$this->user = $_SESSION['user'] = $user;
@@ -340,7 +340,7 @@ class API
 			$this->url = 'api/2/episodes/current.json';
 		}
 		else {
-			$this->error(404, 'Ponto de extremidade da API Nextcloud indefinido');
+			$this->error(404, __('messages.nextcloud_undefined_endpoint'));
 		}
 
 		return null;
@@ -379,7 +379,7 @@ class API
 		}
 
 		if (!in_array($this->format, ['json', 'opml', 'txt'])) {
-			$this->error(501, 'Formato de saída não implementado');
+			$this->error(501, __('messages.output_format_not_implemented'));
 		}
 
 		// For gPodder
@@ -400,7 +400,7 @@ class API
 
 		if ($this->format === 'opml') {
 			if ($this->section !== 'subscriptions') {
-				$this->error(501, 'Formato de saída não implementado');
+				$this->error(501, __('messages.output_format_not_implemented'));
 			}
 
 			header('Content-Type: text/x-opml; charset=utf-8');
@@ -430,7 +430,7 @@ class API
 			$deviceid = explode('/', $this->path)[1] ?? null;
 
 			if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
-				$this->error(400, 'ID do dispositivo inválido');
+				$this->error(400, __('messages.invalid_device_id'));
 			}
 
 			$json = $this->getInput();
@@ -445,9 +445,9 @@ class API
 			];
 
 			$this->db->upsert('devices', $params, ['deviceid', 'user']);
-			$this->error(200, 'Dispositivo atualizado');
+			$this->error(200, __('messages.device_updated'));
 		}
-		$this->error(400, 'Método de solicitação incorreto');
+		$this->error(400, __('messages.invalid_request_method'));
 		exit;
 	}
 
@@ -466,7 +466,7 @@ class API
         }
 
         if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
-            $this->error(400, 'ID do dispositivo inválido');
+            $this->error(400, __('messages.invalid_device_id'));
         }
 
         // Get Subscription Changes
@@ -485,7 +485,7 @@ class API
             $lines = $this->getInput();
 
             if (!is_array($lines)) {
-                $this->error(400, 'Entrada inválida: requer uma matriz com uma linha por feed');
+                $this->error(400, __('messages.invalid_input_array'));
             }
 
             try {
@@ -554,7 +554,7 @@ class API
             }
         }
 
-        $this->error(501, 'Ainda não implementado');
+        $this->error(501, __('messages.not_implemented'));
     }
 
 	/**
@@ -562,7 +562,7 @@ class API
 	 */
 	public function updates(): mixed
 	{
-		$this->error(501, 'Ainda não implementado');
+		$this->error(501, __('messages.not_implemented'));
 		exit;
 	}
 
@@ -592,7 +592,7 @@ class API
 		$input = $this->getInput();
 	
 		if (!is_array($input)) {
-			$this->error(400, 'Nenhuma matriz válida encontrada');
+			$this->error(400, __('messages.invalid_array'));
 		}
 	
 		try {
@@ -607,7 +607,7 @@ class API
 			foreach ($input as $action) {
 				if (!isset($action->podcast, $action->action, $action->episode)) {
 					$this->db->rollBack();
-					$this->error(400, 'Missing required key in action');
+					$this->error(400, __('messages.missing_action_key'));
 				}
 	
 				$this->validateURL($action->podcast);

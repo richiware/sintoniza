@@ -3,11 +3,11 @@
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/manualdousuario/sintoniza/blob/master/README.md)
 [![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/manualdousuario/sintoniza/blob/master/README.pt-br.md)
 
-This is a podcast synchronization server based on the gPodder protocol.
-This project is a fork of [oPodSync](https://github.com/kd2org/opodsync)
-Requires PHP 8.0+ and MySQL/MariaDB.
+Este é um servidor de sincronização de podcast baseado no protocolo gPodder.
+Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
+Requer PHP 8.0+ e MySQL/MariaDB
 
-## Tested Applications
+## Aplicativos testados
 
 - [AntennaPod](https://github.com/AntennaPod/AntennaPod) 3.5.0 - Android
 
@@ -16,19 +16,19 @@ Requires PHP 8.0+ and MySQL/MariaDB.
 - [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux (Funciona sincronização entre devices)
 - [gPodder](https://gpodder.github.io/) 3.11.4 - Windows/macOS/Linux/BSD
 
-## Resources
+## Recursos
 
-- Compatible with GPodder and NextCloud gPodder
-- Stores subscription and episode history
-- Device-to-device synchronization
-- Subscription and history management
-- Global statistics
-- Administrative area for user control
-- Complete podcast and episode data
+- Compatível com GPodder e NextCloud gPodder
+- Armazena histórico de assinaturas e episódios
+- Sincronização entre dispositivos
+- Assinaturas e histórico
+- Estatisticas globais
+- Area administrativa para controle de usuarios
+- Dados completos dos podcasts e episodios
 
 ## Instalação via Docker
 
-After installing Docker, create a *compose* file:
+Após instalar o Docker, vamos criar um *compose*:
 
 `curl -o ./docker-compose.yml https://raw.githubusercontent.com/manualdousuario/sintoniza/main/docker-compose.yml`
 
@@ -69,15 +69,15 @@ services:
       - ./mariadb/data:/var/lib/mysql
 ```
 
-Update the environment variables, then run `docker compose up -d`
-All environment tags are mandatory.
+Atualize as informações dos environments e em seguida pode rodar `docker compose up -d`
+Todos as tags de environment são obrigatorias.
 
 ## Informações adicionais
 
-Use [NGINX Proxy Manager](https://nginxproxymanager.com/) as a frontend web service for this container to add security and caching layers.
-Another web services like Caddy will also work correctly.
+Utilize o [NGINX Proxy Manager](https://nginxproxymanager.com/) como webservice a frente desse container, isso dará mais proteção e camadas de cache.
+Outros webservices como Caddy tambem funcionarão corretamente.
 
-Data collection routines run hourly, and logs can be found at `/var/log/sintoniza.log`
-Additional logs and debug information can be found in `/var/www/html/logs`
+As rotinas de coleta de dados irão rodar a cada hora e o log pode ser visto em `/var/log/sintoniza.log`
+Outros logs e debugs podem encontrados em `/var/www/html/logs`
 
-A public installation is available at [PC do Manual](https://sintoniza.pcdomanual.com/)
+Uma instalação pública está disponivel em [PC do Manual](https://sintoniza.pcdomanual.com/)

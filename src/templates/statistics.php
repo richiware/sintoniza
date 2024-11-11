@@ -13,6 +13,7 @@
         SELECT 
             f.title,
             f.feed_url,
+            f.url,
             COUNT(s.id) as subscription_count
         FROM feeds f
         JOIN subscriptions s ON s.feed = f.id
@@ -25,6 +26,8 @@
     $top_played = $db->all("
         SELECT 
             e.title,
+            e.url as episode_url,
+            f.url as feed_url,
             f.title as feed_title,
             COUNT(DISTINCT ea.user) as play_count
         FROM episodes e
@@ -78,7 +81,7 @@
             <?php foreach ($top_feeds as $i => $feed) { ?>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="ms-2 me-auto">
-                        <div class="fw-bold"><?php echo htmlspecialchars($feed->title) ?></div>
+                        <div class="fw-bold"><a href="<?php echo htmlspecialchars($feed->url) ?>" class="link-dark" target="_blank"><?php echo htmlspecialchars($feed->title) ?></a></div>
                     </div>
                     <span class="badge text-bg-primary rounded-pill"><?php echo format_number($feed->subscription_count) ?></span>
                 </li>
@@ -90,8 +93,8 @@
             <?php foreach ($top_played as $i => $episode) { ?>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="ms-2 me-auto">
-                    <div class="fw-bold"><?php echo htmlspecialchars($episode->title) ?></div>
-                        <?php echo htmlspecialchars($episode->feed_title) ?>
+                    <div class="fw-bold"><a href="<?php echo htmlspecialchars($episode->episode_url) ?>" class="link-dark" target="_blank"><?php echo htmlspecialchars($episode->title) ?></a></div>
+                        <a href="<?php echo htmlspecialchars($episode->feed_url) ?>" class="link-dark text-decoration-none" target="_blank"><?php echo htmlspecialchars($episode->feed_title) ?></a>
                     </div>
                     <span class="badge text-bg-primary rounded-pill"><?php echo format_number($episode->play_count) ?></span>
                 </li>

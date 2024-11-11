@@ -1,20 +1,20 @@
 <div class="text-center mb-4">
-    <h2 class="mb-3">Olá, <strong><?php echo $gpodder->user->name; ?></strong>!</h2>
+    <h2 class="mb-3"><?php echo __('general.hello'); ?>, <strong><?php echo $gpodder->user->name; ?></strong>!</h2>
     <div class="alert alert-warning" role="alert">
-        Usuário secreto do GPodder: <strong><?php echo $gpodder->getUserToken(); ?></strong>
-        <small class="d-block">(Use este nome de usuário no <i>GPodder Desktop</i>, pois ele não suporta senhas)</small>
+        <?php echo __('dashboard.secret_user'); ?>: <strong><?php echo $gpodder->getUserToken(); ?></strong>
+        <small class="d-block"><?php echo __('dashboard.secret_user_note'); ?></small>
     </div>
 </div>
 
 <ul class="nav nav-tabs" id="myTab" role="tablist">
     <li class="nav-item" role="presentation">
         <button class="nav-link active" id="latest-tab" data-bs-toggle="tab" data-bs-target="#latest" type="button" role="tab" aria-controls="latest" aria-selected="true">
-            Últimas atualizações
+            <?php echo __('general.latest_updates'); ?>
         </button>
     </li>
     <li class="nav-item" role="presentation">
         <button class="nav-link" id="devices-tab" data-bs-toggle="tab" data-bs-target="#devices" type="button" role="tab" aria-controls="devices" aria-selected="false">
-            Dispositivos
+            <?php echo __('general.devices'); ?>
         </button>
     </li>
 </ul>
@@ -46,40 +46,43 @@
                     $image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border" src="'.$row->image_url.'" width="80" height="80" /></div>' : '' ;
 
                     if($row->action == 'play') {
-                        $action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> Tocado</div>';
+                        $action = '<div class="badge text-bg-success rounded-pill"><i class="bi bi-play"></i> '.__('actions.played').'</div>';
                     } else if($row->action == 'download') {
-                        $action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> Baixado</div>';
+                        $action = '<div class="badge text-bg-primary rounded-pill"><i class="bi bi-download"></i> '.__('actions.downloaded').'</div>';
                     } else if($row->action == 'delete') {
-                        $action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> Deletado</div>';
+                        $action = '<div class="badge text-bg-danger rounded-pill"><i class="bi bi-trash-fill"></i> '.__('actions.deleted').'</div>';
                     } else {
-                        $action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+                        $action = '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> '.__('actions.unavailable').'</div>';
                     }
 
-                    $device_name = $row->device_name ? '<div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> Indisponivel</div>';
+                    $device_name = $row->device_name ? '<div class="badge text-bg-primary rounded-pill">'.$row->device_name.'</div>' : '<div class="badge text-bg-secondary rounded-pill"><i class="bi bi-motherboard"></i> '.__('devices.unavailable').'</div>';
                     $duration = gmdate("H:i:s", $row->duration);
 
                     printf('<li class="list-group-item p-3">
                             <div class="meta pb-2">
-                                %s no %s em <small><time datetime="%s">%s</time></small>
+                                %s %s %s <small><time datetime="%s">%s</time></small>
                             </div>
                             <div class="episode_info d-flex gap-3">
                                 %s
                                 <div class="data">
                                     <a class="link-dark" target="_blank" href="%s">%s</a><br/>
-                                    Duração: %s<br/>
-                                    <a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+                                    %s: %s<br/>
+                                    <a href="%s" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> %s</a>
                                 </div>
                             </div>
                         </li>',
                         $action,
+                        __('actions.on'),
                         $device_name,
                         date(DATE_ISO8601, $row->changed),
                         date('d/m/Y \à\s H:i', $row->changed),
                         $image_url,
                         $row->episode_url,
                         htmlspecialchars($title),
+                        __('general.duration'),
                         $duration,
                         htmlspecialchars($row->url),
+                        __('general.download')
                     );
                 }
                 

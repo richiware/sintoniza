@@ -49,12 +49,12 @@
             <?php
                 if (isset($_POST['change_password'])) {
                     if ($_POST['new_password'] !== $_POST['confirm_password']) {
-                        echo '<div class="alert alert-danger" role="alert">As novas senhas não coincidem.</div>';
+                        echo '<div class="alert alert-danger" role="alert">'.__('profile.passwords_dont_match').'</div>';
                     }
                     else {
                         $result = $gpodder->changePassword($_POST['current_password'], $_POST['new_password']);
                         if ($result === null) {
-                            echo '<div class="alert alert-success" role="alert">Senha alterada com sucesso!</div>';
+                            echo '<div class="alert alert-success" role="alert">'.__('profile.password_changed').'</div>';
                         }
                         else {
                             printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($result));
@@ -63,19 +63,19 @@
                 }
             ?>
             <div class="mb-3">
-                <label for="current_password" class="form-label">Senha atual:</label>
+                <label for="current_password" class="form-label"><?php echo __('profile.current_password'); ?>:</label>
                 <input type="password" class="form-control" required name="current_password" id="current_password" />
             </div>
             <div class="mb-3">
-                <label for="new_password" class="form-label">Nova Senha (mínimo 8 caracteres):</label>
+                <label for="new_password" class="form-label"><?php echo __('profile.new_password'); ?>: (<?php echo __('profile.min_password_length'); ?>):</label>
                 <input type="password" class="form-control" required name="new_password" id="new_password" minlength="8" />
             </div>
             <div class="mb-3">
-                <label for="confirm_password" class="form-label">Confirmar nova Senha:</label>
+                <label for="confirm_password" class="form-label"><?php echo __('profile.confirm_password'); ?>:</label>
                 <input type="password" class="form-control" required name="confirm_password" id="confirm_password" minlength="8" />
             </div>
             <button type="submit" name="change_password" class="btn btn-primary">
-                Alterar
+            <?php echo __('general.save'); ?>
             </button>
         </form>
     </div>
