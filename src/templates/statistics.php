@@ -1,16 +1,15 @@
 <?php
     require_once __DIR__ . '/../config.php';
     $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
-    function formatNumber($num) {
+
+    function format_number($num) {
         return number_format($num, 0, ',', '.');
     }
     
-    // Buscar contagens básicas
-    $totalUsers = $db->firstColumn("SELECT COUNT(*) FROM users");
-    $totalDevices = $db->firstColumn("SELECT COUNT(*) FROM devices");
+    $total_users = $db->firstColumn("SELECT COUNT(*) FROM users");
+    $total_devices = $db->firstColumn("SELECT COUNT(*) FROM devices");
     
-    // Top 10 feeds mais inscritos
-    $topFeeds = $db->all("
+    $top_feeds = $db->all("
         SELECT 
             f.title,
             f.feed_url,
@@ -23,8 +22,7 @@
         LIMIT 10
     ");
     
-    // Top 10 episódios mais baixados
-    $topDownloaded = $db->all("
+    $top_downloaded = $db->all("
         SELECT 
             e.title,
             f.title as feed_title,
@@ -38,8 +36,7 @@
         LIMIT 10
     ");
     
-    // Top 10 episódios mais tocados
-    $topPlayed = $db->all("
+    $top_played = $db->all("
         SELECT 
             e.title,
             f.title as feed_title,
@@ -60,7 +57,7 @@
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">Usuários Registrados</h5>
-                <p class="display-5 text-primary mb-0"><?= formatNumber($totalUsers) ?></p>
+                <p class="display-5 text-primary mb-0"><?php echo format_number($total_users) ?></p>
             </div>
         </div>
     </div>
@@ -68,99 +65,69 @@
         <div class="card h-100">
             <div class="card-body">
                 <h5 class="card-title">Dispositivos Registrados</h5>
-                <p class="display-5 text-success mb-0"><?= formatNumber($totalDevices) ?></p>
+                <p class="display-5 text-success mb-0"><?php echo format_number($total_devices) ?></p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Top Feeds -->
-<div class="card mb-4">
-    <div class="card-header bg-white">
-        <h2 class="h4 mb-0">Top 10 Feeds Mais Inscritos</h2>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Feed</th>
-                        <th scope="col" class="text-end">Inscrições</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($topFeeds as $i => $feed): ?>
-                    <tr>
-                        <th scope="row"><?= $i + 1 ?>º</th>
-                        <td><?= htmlspecialchars($feed->title) ?></td>
-                        <td class="text-end"><?= formatNumber($feed->subscription_count) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<h2 class="fs-4 mb-3">Top 10</h2>
 
-<!-- Top Downloads -->
-<div class="card mb-4">
-    <div class="card-header bg-white">
-        <h2 class="h4 mb-0">Top 10 Episódios Mais Baixados</h2>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Episódio</th>
-                        <th scope="col">Feed</th>
-                        <th scope="col" class="text-end">Downloads</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($topDownloaded as $i => $episode): ?>
-                    <tr>
-                        <th scope="row"><?= $i + 1 ?>º</th>
-                        <td><?= htmlspecialchars($episode->title) ?></td>
-                        <td><?= htmlspecialchars($episode->feed_title) ?></td>
-                        <td class="text-end"><?= formatNumber($episode->download_count) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="top_feeds-tab" data-bs-toggle="tab" data-bs-target="#top_feeds" type="button" role="tab" aria-controls="top_feeds" aria-selected="true">
+            Mais Inscritos
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="top_downloaded-tab" data-bs-toggle="tab" data-bs-target="#top_downloaded" type="button" role="tab" aria-controls="top_downloaded" aria-selected="false">
+            Mais baixados
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="top_played-tab" data-bs-toggle="tab" data-bs-target="#top_played" type="button" role="tab" aria-controls="top_played" aria-selected="false">
+            Mais Tocados
+        </button>
+    </li>
+</ul>
 
-<!-- Top Played -->
-<div class="card">
-    <div class="card-header bg-white">
-        <h2 class="h4 mb-0">Top 10 Episódios Mais Tocados</h2>
+<div class="tab-content" id="dashboard">
+    <div class="tab-pane fade show active border border-top-0 bg-white rounded-bottom" id="top_feeds" role="tabpanel" aria-labelledby="top_feeds-tab">
+        <ol class="list-group list-group-numbered p-3">
+            <?php foreach ($top_feeds as $i => $feed) { ?>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                        <div class="fw-bold"><?php echo htmlspecialchars($feed->title) ?></div>
+                    </div>
+                    <span class="badge text-bg-primary rounded-pill"><?php echo format_number($feed->subscription_count) ?></span>
+                </li>
+            <?php }; ?>
+        </ol>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Episódio</th>
-                        <th scope="col">Feed</th>
-                        <th scope="col" class="text-end">Reproduções</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($topPlayed as $i => $episode): ?>
-                    <tr>
-                        <th scope="row"><?= $i + 1 ?>º</th>
-                        <td><?= htmlspecialchars($episode->title) ?></td>
-                        <td><?= htmlspecialchars($episode->feed_title) ?></td>
-                        <td class="text-end"><?= formatNumber($episode->play_count) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+    <div class="tab-pane fade border border-top-0 bg-white rounded-bottom" id="top_downloaded" role="tabpanel" aria-labelledby="top_downloaded-tab">
+        <ol class="list-group list-group-numbered p-3">
+            <?php foreach ($top_downloaded as $i => $episode) { ?>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                    <div class="fw-bold"><?php echo htmlspecialchars($episode->title) ?></div>
+                        <?php echo htmlspecialchars($episode->feed_title) ?>
+                    </div>
+                    <span class="badge text-bg-primary rounded-pill"><?php echo format_number($episode->download_count) ?></span>
+                </li>
+            <?php }; ?>
+        </ol>
+    </div>
+    <div class="tab-pane fade border border-top-0 bg-white rounded-bottom" id="top_played" role="tabpanel" aria-labelledby="devices-tab">
+        <ol class="list-group list-group-numbered p-3">
+            <?php foreach ($top_played as $i => $episode) { ?>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div class="ms-2 me-auto">
+                    <div class="fw-bold"><?php echo htmlspecialchars($episode->title) ?></div>
+                        <?php echo htmlspecialchars($episode->feed_title) ?>
+                    </div>
+                    <span class="badge text-bg-primary rounded-pill"><?php echo format_number($episode->play_count) ?></span>
+                </li>
+            <?php }; ?>
+        </ol>
     </div>
 </div>
