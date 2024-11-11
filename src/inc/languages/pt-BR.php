@@ -26,7 +26,11 @@ return [
         'email' => 'Email',
         'min_password_length' => 'Senha (mínimo de 8 caracteres)',
         'latest_updates' => 'Últimas atualizações',
-        'devices' => 'Dispositivos'
+        'devices' => 'Dispositivos',
+        'forgot_password' => 'Esqueceu a senha?',
+        'send_reset_link' => 'Enviar email de recuperação',
+        'reset_password' => 'Recuperar senha',
+        'new_password' => 'Nova senha',
     ],
     'errors' => [
         'schema_file_not_found' => 'Arquivo de esquema mysql.sql não encontrado',

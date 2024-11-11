@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Define
-$version = "1.9.2";
+$version = "1.10";
 define("VERSION", $version);
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
@@ -16,6 +16,16 @@ define("TITLE", isset($_ENV['TITLE']) ? $_ENV['TITLE'] : 'Awesome gPodder');
 define("ENABLE_SUBSCRIPTIONS", isset($_ENV['ENABLE_SUBSCRIPTIONS']) ? filter_var($_ENV['ENABLE_SUBSCRIPTIONS'], FILTER_VALIDATE_BOOLEAN) : false);
 define("DEBUG", isset($_ENV['DEBUG']) && $_ENV['DEBUG'] == true ? __DIR__ . '/logs/debug.log' : null);
 define("DISABLE_USER_METADATA_UPDATE", isset($_ENV['DISABLE_USER_METADATA_UPDATE']) ? filter_var($_ENV['DISABLE_USER_METADATA_UPDATE'], FILTER_VALIDATE_BOOLEAN) : false);
+
+// PHPMailer SMTP Configuration
+define("SMTP_USER", isset($_ENV['SMTP_USER']) ? $_ENV['SMTP_USER'] : '');
+define("SMTP_PASS", isset($_ENV['SMTP_PASS']) ? $_ENV['SMTP_PASS'] : '');
+define("SMTP_HOST", isset($_ENV['SMTP_HOST']) ? $_ENV['SMTP_HOST'] : '');
+define("SMTP_FROM", isset($_ENV['SMTP_FROM']) ? $_ENV['SMTP_FROM'] : '');
+define("SMTP_NAME", isset($_ENV['SMTP_NAME']) ? $_ENV['SMTP_NAME'] : '');
+define("SMTP_PORT", isset($_ENV['SMTP_PORT']) ? $_ENV['SMTP_PORT'] : '587');
+define("SMTP_SECURE", isset($_ENV['SMTP_SECURE']) ? $_ENV['SMTP_SECURE'] : 'tls');
+define("SMTP_AUTH", isset($_ENV['SMTP_AUTH']) ? filter_var($_ENV['SMTP_AUTH'], FILTER_VALIDATE_BOOLEAN) : true));
 
 // Functions and classes
 require_once __DIR__ . '/inc/Errors.php';

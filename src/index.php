@@ -151,10 +151,18 @@ elseif ($api->url === 'register') {
 
 	html_foot();
 }
+elseif ($api->url === 'forget-password') {
+	html_head('Recuperar Senha');
+	require_once __DIR__ . '/templates/forget-password.php';
+	html_foot();
+}
+elseif ($api->url === 'forget-password/reset') {
+	html_head('Recuperar Senha');
+	require_once __DIR__ . '/templates/forget-password/reset.php';
+	html_foot();
+}
 else {
 	html_head();
-
 	require_once __DIR__ . '/templates/index.php';
-
 	html_foot();
 }

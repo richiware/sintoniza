@@ -83,12 +83,6 @@ class GPodder
 			return 'Senha atual incorreta';
 		}
 
-		// Validate new password
-		$newPassword = trim($newPassword);
-		if (strlen($newPassword) < 8) {
-			return 'A nova senha é muito curta (mínimo 8 caracteres)';
-		}
-
 		// Update password in database
 		$hashedPassword = password_hash($newPassword, null);
 		$this->db->simple('UPDATE users SET password = ? WHERE id = ?;', $hashedPassword, $this->user->id);
@@ -99,6 +93,24 @@ class GPodder
 
 		return null;
 	}
+
+	public function getUserByEmail(string $email): ?stdClass
+    {
+        $sql = "SELECT * FROM users WHERE email = :email";
+        return $this->db->firstRow($sql, ['email' => $email]);
+    }
+
+    public function getUserByPasswordResetToken(string $token): ?stdClass
+    {
+        $sql = "SELECT * FROM users WHERE password_reset_token = :token AND password_reset_token_expires_at > :now";
+        return $this->db->firstRow($sql, ['token' => $token, 'now' => time()]);
+    }
+
+	public function updatePasswordResetToken(int $userId, ?string $token, ?int $expiresAt = null): void
+    {
+        $sql = "UPDATE users SET password_reset_token = :token, password_reset_token_expires_at = :expiresAt WHERE id = :userId";
+        $this->db->simple($sql, ['userId' => $userId, 'token' => $token, 'expiresAt' => $expiresAt]);
+    }
 
 	public function updateLanguage(string $language): ?string
 	{

@@ -26,7 +26,11 @@ return [
         'email' => 'Email',
         'min_password_length' => 'Password (minimum 8 characters)',
         'latest_updates' => 'Latest Updates',
-        'devices' => 'Devices'
+        'devices' => 'Devices',
+        'forgot_password' => 'Forgot password?',
+        'send_reset_link' => 'Send reset link',
+        'reset_password' => 'Reset password',
+        'new_password' => 'New password',
     ],
     'errors' => [
         'schema_file_not_found' => 'MySQL schema file not found',
