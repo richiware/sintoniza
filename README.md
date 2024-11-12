@@ -13,7 +13,8 @@ Requires PHP 8.0+ and MySQL/MariaDB.
 
 ![AntennaPod 3.5.0](https://github.com/manualdousuario/sintoniza/blob/main/assets/antennapod_350.gif?raw=true)
 
-- [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux (Funciona sincronização entre devices)
+- [Cardo](https://cardo-podcast.github.io) 1.90 - Windows/MacOS/Linux
+- [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux
 - [gPodder](https://gpodder.github.io/) 3.11.4 - Windows/macOS/Linux/BSD
 
 ## Resources
