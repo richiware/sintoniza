@@ -43,19 +43,16 @@ echo "SMTP_HOST=${SMTP_HOST}" >> /var/www/html/.env
 echo "SMTP_FROM=${SMTP_FROM}" >> /var/www/html/.env
 echo "SMTP_NAME=${SMTP_NAME}" >> /var/www/html/.env
 
-if [ -z "${DEBUG}" ]; then
-    DEBUG=null
+if [ -n "${DEBUG}" ]; then
+    echo "DEBUG=${DEBUG}" >> /var/www/html/.env
 fi
-echo "DEBUG=${DEBUG}" >> /var/www/html/.env
 
-if [ -z "${ENABLE_SUBSCRIPTIONS}" ]; then
-    ENABLE_SUBSCRIPTIONS=false
+if [ -n "${ENABLE_SUBSCRIPTIONS}" ]; then
+    echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /var/www/html/.env
 fi
-echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /var/www/html/.env
 
-if [ -z "${DISABLE_USER_METADATA_UPDATE}" ]; then
-    DISABLE_USER_METADATA_UPDATE=false
+if [ -n "${DISABLE_USER_METADATA_UPDATE}" ]; then
+    echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >> /var/www/html/.env
 fi
-echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >> /var/www/html/.env
 
 echo "Variáveis de ambiente salvas com sucesso."

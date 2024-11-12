@@ -2,6 +2,8 @@
 // Errors log
 error_reporting(E_ALL);
 
+$backtrace = null;
+
 set_error_handler(static function ($severity, $message, $file, $line) {
 	if (!(error_reporting() & $severity)) {
 		// Don't report this error (for example @unlink)
@@ -14,25 +16,21 @@ set_error_handler(static function ($severity, $message, $file, $line) {
 	throw new \ErrorException($message, 0, $severity, $file, $line);
 });
 
-ini_set('error_log', __DIR__ . '/../logs/error.log');
-
 set_exception_handler(function ($e) {
 	@http_response_code(500);
-	if (defined('DEBUG') && DEBUG == true) {
-		error_log(__DIR__ . '/../logs/debug.log');
-	} else {
-		error_log(__DIR__ . '/../logs/error.log');
-	}
+	error_log((string)$e);
 	echo '<pre class="alert alert-danger">
 	<h1>Internal error</h1>';
+	
+	error_log((string) $e);
 
-	if (defined('DEBUG') && DEBUG == true) {
+	if (defined('DEBUG') && DEBUG) {
 		echo $e;
 
 		global $backtrace;
 		$backtrace ??= debug_backtrace();
 
-		error_log(print_r($backtrace, true), 3, __DIR__ . '/../logs/debug.log');
+		error_log(print_r($backtrace, true));
 
 		echo '<hr/>';
 		print_r($backtrace);
