@@ -37,8 +37,6 @@ return [
         'sql_error' => 'Erro ao executar o comando SQL: %s\nO comando foi: %s'
     ],
     'profile' => [
-        'title' => 'Perfil do Usuário',
-        'email' => 'Email',
         'change_password' => 'Alterar Senha',
         'current_password' => 'Senha Atual',
         'new_password' => 'Nova Senha',
@@ -60,11 +58,8 @@ return [
         'pt-BR' => 'Português (Brasil)'
     ],
     'admin' => [
-        'title' => 'Administração',
         'add_user' => 'Adicionar Novo Usuário',
         'user_list' => 'Lista de Usuários',
-        'username' => 'Usuário',
-        'password' => 'Senha',
         'confirm_delete' => 'Tem certeza que deseja deletar este usuário?',
         'user_deleted' => 'Usuário deletado com sucesso',
         'user_registered' => 'Usuário registrado com sucesso'
@@ -77,7 +72,7 @@ return [
         'no_info' => 'Nenhuma informação disponível neste feedNenhuma informação disponível neste feed',
         'last_update' => 'Última atualização',
         'update_all_metadata' => 'Atualizar todos os metadados dos feeds',
-        'metadata_note' => 'A atualização de meta dados das inscrições está configurada para ser feita por rotinas diretamente no servidor, as atualização são feitas a cada uma hora.',
+        'cron_notice' => 'A atualização de meta dados das inscrições está configurada para ser feita por rotinas diretamente no servidor, as atualização são feitas a cada uma hora.',
         'opml_feed' => 'Feed OPML'
     ],
     'devices' => [
@@ -90,8 +85,9 @@ return [
         'downloaded' => 'Baixado',
         'deleted' => 'Deletado',
         'unavailable' => 'Indisponível',
-        'on' => 'no',
-        'at' => 'às'
+        'on' => 'em',
+        'at' => 'às',
+        'from' => 'no',
     ],
     'messages' => [
         'subscriptions_disabled' => 'As assinaturas estão desabilitadas.',
@@ -120,6 +116,16 @@ return [
         'nextcloud_undefined_endpoint' => 'Ponto de extremidade da API Nextcloud indefinido',
         'output_format_not_implemented' => 'Formato de saída não implementado',
         'email_already_registered' => 'Endereço de e-mail já registrado',
+        'subscriptions_metadata' => 'Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados ​​por alguns provedores de podcast.',
+        'user_not_logged' => 'Usuário não está logado',
+        'current_password_incorrect' => 'Senha atual incorreta',
+        'invalid_language' => 'Idioma inválido',
+        'invalid_timezone' => 'Fuso horário inválido',
+        'invalid_username' => 'Nome de usuário inválido. Permitido é: \w[\w\d_-]+',
+        'username_blocked' => 'Este nome de usuário está bloqueado, escolha outro.',
+        'password_too_short' => 'A senha é muito curta',
+        'email_invalid' => 'Email invalido',
+        'username_already_exists' => 'O nome de usuário já existe'
     ],
     'statistics' => [
         'registered_users' => 'Usuários Registrados',
@@ -131,13 +137,19 @@ return [
     ],
     'footer' => [
         'managed_by' => 'Instância gerenciada e mantida por',
-        'with_love_by' => 'Com ❤️ por',
-        'version' => 'Versão'
-    ],
-    'home' => [
-        'intro' => 'Este é um servidor de sincronização de podcast baseado no "protocolo" gPodder.',
         'fork_note' => 'Esse projeto é um fork do',
         'github_project' => 'Projeto publicado no Github',
         'tested_apps' => 'Aplicativos testados'
+    ],
+    'forget_password' => [
+        'email_sent' => 'Um e-mail de redefinição de senha foi enviado para seu endereço de e-mail.',
+        'email_not_registered' => 'O endereço de e-mail que você forneceu não está registrado.'
+    ],
+    'db' => [
+        'schema_not_found' => 'Arquivo de esquema mysql.sql não encontrado'
+    ],
+    'erros' => [
+        'debug_log' => 'Ocorreu um erro e foi registrado em logs/error.log',
+        'debug_enable' => 'Habilitar constante DEBUG para ver erros'
     ]
 ];

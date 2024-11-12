@@ -1,12 +1,11 @@
 <?php
-if ($error) {
-    printf('<div class="alert alert-danger" role="alert">%s</div>', htmlspecialchars($error));
-}
+if ($error) { ?>
+    <div class="alert alert-danger" role="alert"><?php echo htmlspecialchars($error); ?></div>
+<?php }
 
-if (isset($_GET['token'])) {
-    printf('<div class="alert alert-warning" role="alert">'.__('messages.app_requesting_access').'</div>');
-}
-
+if (isset($_GET['token'])) { ?>
+    <div class="alert alert-warning" role="alert"><?php echo __('messages.app_requesting_access'); ?></div>
+<?php }
 ?>
 <div class="row justify-content-center">
     <div class="col-md-6 col-lg-4">
@@ -24,7 +23,7 @@ if (isset($_GET['token'])) {
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-box-arrow-in-right"></i> <?php echo __('general.login'); ?>
+                            <i class="bi bi-box-arrow-in-right"></i> <?php echo __('general.login'); ?>
                         </button>
                     </div>
                     <div class="mt-3 text-center">

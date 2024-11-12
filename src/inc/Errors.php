@@ -33,9 +33,10 @@ set_exception_handler(function ($e) {
 		echo '<hr/>';
 		print_r($backtrace);
 	}
-	else {
-		echo 'An error happened and has been logged to logs/error.log<br />Enable DEBUG constant to see errors directly.';
-	}
+	else { ?>
+		<?php echo __('errors.debug_log'); ?></br>
+		<?php echo __('errors.debug_enable'); ?>
+	<?php }
 
 	echo '</pre>';
 	exit;

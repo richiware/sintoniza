@@ -56,16 +56,14 @@ class DB extends PDO
         $sqlFile = __DIR__ . '/mysql.sql';
         
         if (!file_exists($sqlFile)) {
-            throw new RuntimeException('Arquivo de esquema mysql.sql não encontrado');
+            throw new RuntimeException(__('db.schema_not_found'));
         }
 
         $sql = file_get_contents($sqlFile);
         
-        // Divide o SQL em comandos individuais
         $commands = array_filter(
             array_map(
                 'trim',
-                // Divide no final de cada comando preservando comentários
                 preg_split("/;[\r\n]+/", $sql)
             )
         );
@@ -75,7 +73,6 @@ class DB extends PDO
         foreach ($commands as $command) {
             if (empty($command)) continue;
             
-            // Ignora comentários e comandos SET
             if (preg_match('/^(\/\*|SET|--)/i', trim($command))) {
                 continue;
             }
@@ -86,7 +83,7 @@ class DB extends PDO
             catch (PDOException $e) {
                 $this->exec('SET FOREIGN_KEY_CHECKS = 1');
                 throw new RuntimeException(
-                    sprintf("Erro ao executar o comando SQL: %s\nO comando foi: %s", 
+                    sprintf("Error: %s\n - %s", 
                         $e->getMessage(), 
                         $command
                     )

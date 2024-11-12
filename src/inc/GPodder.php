@@ -31,7 +31,7 @@ class GPodder
 		$user = $this->db->firstRow('SELECT * FROM users WHERE name = ?;', trim($_POST['login']));
 
 		if (!$user || !password_verify(trim($_POST['password']), $user->password ?? '')) {
-			return 'Nome de usuário/senha inválidos';
+			return __('messages.invalid_username_password');
 		}
 
 		$_SESSION['user'] = $this->user = $user;
@@ -75,12 +75,12 @@ class GPodder
 	public function changePassword(string $currentPassword, string $newPassword): ?string
 	{
 		if (!$this->user) {
-			return 'Usuário não está logado';
+			return __('messages.user_not_logged');
 		}
 
 		// Verify current password
 		if (!password_verify(trim($currentPassword), $this->user->password)) {
-			return 'Senha atual incorreta';
+			return __('messages.current_password_incorrect');
 		}
 
 		// Update password in database
@@ -115,13 +115,13 @@ class GPodder
 	public function updateLanguage(string $language): ?string
 	{
 		if (!$this->user) {
-			return 'Usuário não está logado';
+			return __('messages.user_not_logged');
 		}
 
 		// Validate language using Language class
 		$validLanguages = Language::getInstance()->getAvailableLanguages();
 		if (!array_key_exists($language, $validLanguages)) {
-			return 'Idioma inválido';
+			return __('messages.invalid_language');
 		}
 
 		// Update language in database
@@ -140,12 +140,12 @@ class GPodder
 	public function updateTimezone(string $timezone): ?string
 	{
 		if (!$this->user) {
-			return 'Usuário não está logado';
+			return __('messages.user_not_logged');
 		}
 
 		// Validate timezone
 		if (!in_array($timezone, DateTimeZone::listIdentifiers())) {
-			return 'Timezone inválida';
+			return __('messages.invalid_timezone');
 		}
 
 		// Update timezone in database

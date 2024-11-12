@@ -22,35 +22,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $mail->Subject = TITLE . ' | Password Reset';
         $mail->Body = 'Please click the following link to reset your password: '.BASE_URL.'forget-password/reset?token=' . $resetToken;
         $mail->send();
-
-        echo '<div class="alert alert-success" role="alert">
-            A password reset email has been sent to your email address.
-        </div>';
-    } else {
-        echo '<div class="alert alert-danger" role="alert">
-            The email address you provided is not registered.
-        </div>';
-    }
+        ?>
+        <div class="alert alert-success" role="alert">
+            <?php echo __('forget_password.email_sent'); ?>
+        </div>
+        <?php
+    } else { ?>
+        <div class="alert alert-danger" role="alert">
+            <?php echo __('forget_password.email_not_registered'); ?>
+        </div>
+    <?php }
 }
 ?>
 
 <div class="row justify-content-center">
-<div class="col-md-6 col-lg-4">
-<div class="card shadow">
-<div class="card-body p-4">
-<form method="post" action="/forget-password">
-<h2 class="card-title text-center mb-4"><?= __('general.forgot_password') ?></h2>
-<div class="mb-3">
-<label for="email" class="form-label"><?= __('general.email') ?></label>
-<input type="email" class="form-control" required name="email" id="email" />
-</div>
-<div class="d-grid">
-<button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
-<i class="bi bi-envelope"></i> <?= __('general.send_reset_link') ?>
-</button>
-</div>
-</form>
-</div>
-</div>
-</div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card shadow">
+            <div class="card-body p-4">
+                <form method="post" action="/forget-password">
+                    <h2 class="card-title text-center mb-4"><?php echo __('general.forgot_password'); ?></h2>
+                    <div class="mb-3">
+                        <label for="email" class="form-label"><?php echo __('general.email'); ?></label>
+                        <input type="email" class="form-control" required name="email" id="email" />
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-envelope"></i> <?php echo __('general.send_reset_link'); ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>

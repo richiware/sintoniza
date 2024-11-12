@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Define
-$version = "1.10.1";
+$version = "1.10.2";
 define("VERSION", $version);
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
@@ -25,7 +25,7 @@ define("SMTP_FROM", isset($_ENV['SMTP_FROM']) ? $_ENV['SMTP_FROM'] : '');
 define("SMTP_NAME", isset($_ENV['SMTP_NAME']) ? $_ENV['SMTP_NAME'] : '');
 define("SMTP_PORT", isset($_ENV['SMTP_PORT']) ? $_ENV['SMTP_PORT'] : '587');
 define("SMTP_SECURE", isset($_ENV['SMTP_SECURE']) ? $_ENV['SMTP_SECURE'] : 'tls');
-define("SMTP_AUTH", isset($_ENV['SMTP_AUTH']) ? filter_var($_ENV['SMTP_AUTH'], FILTER_VALIDATE_BOOLEAN) : true));
+define("SMTP_AUTH", isset($_ENV['SMTP_AUTH']) ? filter_var($_ENV['SMTP_AUTH'], FILTER_VALIDATE_BOOLEAN) : true);
 
 // Functions and classes
 require_once __DIR__ . '/inc/Errors.php';

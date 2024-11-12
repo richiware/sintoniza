@@ -37,8 +37,6 @@ return [
         'sql_error' => 'Error executing SQL command: %s\nThe command was: %s'
     ],
     'profile' => [
-        'title' => 'User Profile',
-        'email' => 'Email',
         'change_password' => 'Change Password',
         'current_password' => 'Current Password',
         'new_password' => 'New Password',
@@ -60,11 +58,8 @@ return [
         'pt-BR' => 'Portuguese (Brazil)'
     ],
     'admin' => [
-        'title' => 'Administration',
         'add_user' => 'Add New User',
         'user_list' => 'Users List',
-        'username' => 'Username',
-        'password' => 'Password',
         'confirm_delete' => 'Are you sure you want to delete this user?',
         'user_deleted' => 'User deleted successfully',
         'user_registered' => 'User registered successfully'
@@ -77,7 +72,7 @@ return [
         'no_info' => 'No information available for this feed',
         'last_update' => 'Last Update',
         'update_all_metadata' => 'Update all feed metadata',
-        'metadata_note' => 'Feed metadata updates are configured to be done by routines directly on the server, updates are done every hour.',
+        'cron_notice' => 'Feed metadata updates are configured to be done by routines directly on the server, updates are done every hour.',
         'opml_feed' => 'OPML Feed'
     ],
     'devices' => [
@@ -91,7 +86,8 @@ return [
         'deleted' => 'Deleted',
         'unavailable' => 'Unavailable',
         'on' => 'on',
-        'at' => 'at'
+        'at' => 'at',
+        'from' => 'from',
     ],
     'messages' => [
         'subscriptions_disabled' => 'Subscriptions are disabled.',
@@ -120,6 +116,16 @@ return [
         'nextcloud_undefined_endpoint' => 'Undefined Nextcloud API endpoint',
         'output_format_not_implemented' => 'Output format not implemented',
         'email_already_registered' => 'Email address is already registered',
+        'subscriptions_metadata' => 'Episode titles and images may be missing due to trackers/ads used by some podcast providers.',
+        'user_not_logged' => 'User is not logged in',
+        'current_password_incorrect' => 'Current password incorrect',
+        'invalid_language' => 'Invalid language',
+        'invalid_timezone' => 'Invalid Timezone',
+        'invalid_username' => 'Invalid username. Allowed: \w[\w\d_-]+',
+        'username_blocked' => 'This username is blocked, please choose another.',
+        'password_too_short' => 'Password is too short',
+        'email_invalid' => 'Email is invalid',
+        'username_already_exists' => 'Username already exists'
     ],
     'statistics' => [
         'registered_users' => 'Registered Users',
@@ -139,5 +145,16 @@ return [
         'fork_note' => 'This project is a fork of',
         'github_project' => 'Project published on Github',
         'tested_apps' => 'Tested Applications'
+    ],
+    'forget_password' => [
+        'email_sent' => 'A password reset email has been sent to your email address.',
+        'email_not_registered' => 'The email address you provided is not registered.'
+    ],
+    'db' => [
+        'schema_not_found' => 'mysql.sql schema file not found'
+    ],
+    'erros' => [
+        'debug_log' => 'An error happened and has been logged to logs/error.log',
+        'debug_enable' => 'Enable DEBUG constant to see errors directly'
     ]
 ];

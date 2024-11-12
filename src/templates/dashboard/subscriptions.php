@@ -29,7 +29,7 @@ elseif (isset($_GET['id'])) {
                 </div>
             </div>
             <div class="alert alert-warning mt-3" role="alert">
-                Os títulos e imagens dos episódios podem estar faltando devido a rastreadores/anúncios usados ​​por alguns provedores de podcast.<br/>
+                <?php echo __('messages.subscriptions_metadata'); ?>
             </div>
         <?php
     }
@@ -61,14 +61,14 @@ elseif (isset($_GET['id'])) {
 
                     <li class="list-group-item p-3">
                         <div class="meta pb-2">
-                            <?php echo $action; ?> no <?php echo $device_name; ?> em <small><time datetime="<?php echo date(DATE_ISO8601, $row->changed); ?>"><?php echo date('d/m/Y \à\s H:i', $row->changed); ?></time></small>
+                            <?php echo $action; ?> <?php echo __('actions.from'); ?> <?php echo $device_name; ?> <?php echo __('actions.on'); ?> <small><time datetime="<?php echo date(DATE_ISO8601, $row->changed); ?>"><?php echo date('d/m/Y', $row->changed); ?> <?php echo __('actions.at'); ?> <?php echo date('H:i', $row->changed); ?></time></small>
                         </div>
                         <div class="episode_info d-flex flex-wrap gap-3">
                             <?php echo $image_url; ?>
                             <div class="data">
                                 <a class="link-dark" target="_blank" href="<?php echo $row->episode_url; ?>"><?php echo htmlspecialchars($title); ?></a><br/>
                                 <?php echo __('general.duration'); ?>: <?php echo $duration; ?><br/>
-                                <a href="<?php echo htmlspecialchars($row->url); ?>" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> Download</a>
+                                <a href="<?php echo htmlspecialchars($row->url); ?>" target="_blank" class="btn btn-sm btn-secondary"><i class="bi bi-cloud-arrow-down-fill"></i> <?php echo __('general.download'); ?></a>
                             </div>
                         </div>
                     </li>
@@ -80,15 +80,17 @@ elseif (isset($_GET['id'])) {
     ?>
     <form method="post" action="">
         <div class="flex-wrap d-flex gap-2 pb-4">
-            <a href="/dashboard" class="btn btn-danger" aria-label="Voltar">Voltar</a>
+            <a href="/dashboard" class="btn btn-danger" aria-label="<?php echo __('general.back'); ?>"><?php echo __('general.back'); ?></a>
             <a href="/subscriptions/<?php echo htmlspecialchars($gpodder->user->name); ?>.opml" target="_blank" class="btn btn-secondary">Feed OPML</a>
             <?php if(DISABLE_USER_METADATA_UPDATE == false) { ?>
-                <button type="submit" class="btn btn-info" name="update" value=1>Atualizar todos os metadados dos feeds</button>
+                <button type="submit" class="btn btn-info" name="update" value=1><?php echo __('dashboard.update_all_metadata'); ?></button>
             <?php } ?>
         </div>
     </form>
     <?php if(DISABLE_USER_METADATA_UPDATE) { ?>
-        <div class="alert alert-warning">A atualização de meta dados das inscrições está configurada para ser feita por rotinas diretamente no servidor, as atualização são feitas a cada uma hora.</div>
+        <div class="alert alert-warning">
+            <?php echo __('dashboard.cron_notice'); ?>
+        </div>
     <?php } ?>
     <?php
 
@@ -97,25 +99,18 @@ elseif (isset($_GET['id'])) {
     foreach ($gpodder->listActiveSubscriptions() as $row) {
         $image_url = !empty($row->image_url) ? '<div class="thumbnail"><img class="rounded border h-auto" src="'.$row->image_url.'" width="80" /></div>' : '' ;
         $title = $row->title ?? str_replace(['http://', 'https://'], '', $row->url);
-            printf('
+        ?>
             <li class="list-group-item p-3">
                 <div class="episode_info d-flex gap-3">
-                    %s
+                    <?php echo $image_url; ?>
                     <div class="data">
-                        <h2 class="fs-5"><a class="link-dark" href="/dashboard/subscriptions?id=%d">%s</a></h2>
-                        <small class="d-block">%s</small>
-                        <small><strong>%s</strong>: <time datetime="%s" class="text-nowrap">%s</time></small>
+                        <h2 class="fs-5"><a class="link-dark" href="/dashboard/subscriptions?id=<?php echo $row->id; ?>"><?php echo htmlspecialchars($title); ?></a></h2>
+                        <small class="d-block"><?php echo format_description($row->description); ?></small>
+                        <small><strong><?php echo __('dashboard.last_update'); ?></strong>: <time datetime="<?php echo date(DATE_ISO8601, $row->last_change); ?>" class="text-nowrap"><?php echo date('d/m/Y \à\s H:i', $row->last_change); ?></time></small>
                     </div>
                 </div>
-            </li>',
-            $image_url,
-            $row->id,
-            htmlspecialchars($title),
-            format_description($row->description),
-            __('dashboard.last_update'),
-            date(DATE_ISO8601, $row->last_change),
-            date('d/m/Y \à\s H:i', $row->last_change)
-        );
+            </li>
+        <?php
     }
 
     echo '</ul>';
