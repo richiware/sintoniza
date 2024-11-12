@@ -85,7 +85,6 @@ All environment tags are mandatory.
 Use [NGINX Proxy Manager](https://nginxproxymanager.com/) as a frontend web service for this container to add security and caching layers.
 Another web services like Caddy will also work correctly.
 
-Data collection routines run hourly, and logs can be found at `/var/log/sintoniza.log`
-Additional logs and debug information can be found in `/var/www/html/logs`
+Logs and debug information can be found in `/app/logs`
 
 A public installation is available at [PC do Manual](https://sintoniza.pcdomanual.com/)

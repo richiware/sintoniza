@@ -85,7 +85,6 @@ Todos as tags de environment são obrigatorias.
 Utilize o [NGINX Proxy Manager](https://nginxproxymanager.com/) como webservice a frente desse container, isso dará mais proteção e camadas de cache.
 Outros webservices como Caddy tambem funcionarão corretamente.
 
-As rotinas de coleta de dados irão rodar a cada hora e o log pode ser visto em `/var/log/sintoniza.log`
-Outros logs e debugs podem encontrados em `/var/www/html/logs`
+Logs e debugs podem encontrados em `/app/logs`
 
 Uma instalação pública está disponivel em [PC do Manual](https://sintoniza.pcdomanual.com/)

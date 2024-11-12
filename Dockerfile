@@ -6,9 +6,11 @@ RUN apt-get update && apt-get install -y nginx cron nano procps unzip git \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY default.conf /etc/nginx/sites-available/default
-COPY src/ /var/www/html/
 
-WORKDIR /var/www/html
+RUN mkdir -p /app
+COPY src/ /app/
+
+WORKDIR /app
 RUN composer install --no-interaction --optimize-autoloader
 
 COPY env.sh /usr/local/bin/env.sh
@@ -17,10 +19,10 @@ RUN chmod +x /usr/local/bin/env.sh
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
 
-RUN touch /var/log/cron.log
-RUN echo '0 * * * * root php "/var/www/html/index.php" >> /var/log/cron.log 2>&1' >> /etc/crontab
+RUN touch /app/logs/cron.log
+RUN echo '0 * * * * root php "/app/index.php" >> /app/logs/cron.log 2>&1' >> /etc/crontab
 
-RUN chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html
+RUN chown -R www-data:www-data /app && chmod -R 755 /app
 
 EXPOSE 80
 
