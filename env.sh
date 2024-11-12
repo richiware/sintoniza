@@ -31,28 +31,28 @@ echo "Todas as variáveis de ambiente obrigatórias estão definidas."
 
 echo "Criando variáveis arquivo de variaveis de ambiente."
 
-echo "DB_HOST=${DB_HOST}" >> /var/www/html/.env
-echo "DB_USER=${DB_USER}" >> /var/www/html/.env
-echo "DB_PASS=${DB_PASS}" >> /var/www/html/.env
-echo "BASE_URL=${BASE_URL}" >> /var/www/html/.env
-echo "TITLE=${TITLE}" >> /var/www/html/.env
+echo "DB_HOST=${DB_HOST}" >> /app/.env
+echo "DB_USER=${DB_USER}" >> /app/.env
+echo "DB_PASS=${DB_PASS}" >> /app/.env
+echo "BASE_URL=${BASE_URL}" >> /app/.env
+echo "TITLE=${TITLE}" >> /app/.env
 
-echo "SMTP_USER=${SMTP_USER}" >> /var/www/html/.env
-echo "SMTP_PASS=${SMTP_PASS}" >> /var/www/html/.env
-echo "SMTP_HOST=${SMTP_HOST}" >> /var/www/html/.env
-echo "SMTP_FROM=${SMTP_FROM}" >> /var/www/html/.env
-echo "SMTP_NAME=${SMTP_NAME}" >> /var/www/html/.env
+echo "SMTP_USER=${SMTP_USER}" >> /app/.env
+echo "SMTP_PASS=${SMTP_PASS}" >> /app/.env
+echo "SMTP_HOST=${SMTP_HOST}" >> /app/.env
+echo "SMTP_FROM=${SMTP_FROM}" >> /app/.env
+echo "SMTP_NAME=${SMTP_NAME}" >> /app/.env
 
 if [ -n "${DEBUG}" ]; then
-    echo "DEBUG=${DEBUG}" >> /var/www/html/.env
+    echo "DEBUG=${DEBUG}" >> /app/.env
 fi
 
 if [ -n "${ENABLE_SUBSCRIPTIONS}" ]; then
-    echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /var/www/html/.env
+    echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /app/.env
 fi
 
 if [ -n "${DISABLE_USER_METADATA_UPDATE}" ]; then
-    echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >> /var/www/html/.env
+    echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >> /app/.env
 fi
 
 echo "Variáveis de ambiente salvas com sucesso."
