@@ -7,7 +7,7 @@ if (!empty($_POST)) {
             echo '<div class="alert alert-danger" role="alert">' . __('messages.invalid_captcha') . '</div>';
         } else {
             $email = $_POST['email'] ?? '';
-            $existingUser = $db->getRow('SELECT * FROM users WHERE email = ?', $email);
+            $existingUser = $db->firstRow('SELECT * FROM users WHERE email = ?', $email);
             if ($existingUser) { ?>
                 <div class="alert alert-danger" role="alert"><?php echo __('messages.email_already_registered'); ?></div>
             <?php } else if ($error = $gpodder->subscribe($_POST['username'] ?? '', $_POST['password'] ?? '', $email)) { ?>
