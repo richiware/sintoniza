@@ -6,10 +6,10 @@ services:
       - "80:80"
     environment:
       DB_HOST: mariadb
-      DB_USERNAME: user
-      DB_PASSWORD: password
+      DB_USER: user
+      DB_PASS: password
       DB_NAME: database_name
-      BASE_URL: https://sintoniza.xyz
+      BASE_URL: https://sintoniza.xyz/
       TITLE: Sintoniza
       ADMIN_PASSWORD: p@ssw0rd
       DEBUG: true
