@@ -79,11 +79,15 @@ class Feed
 		if (function_exists('curl_exec')) {
 			$ch = curl_init($this->feed_url);
 			curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: oPodSync']);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, [
+				'User-Agent: oPodSync',
+				'Accept-Encoding: gzip'
+			]);
 			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_ENCODING, ''); // Handle compressed responses automatically
 
 			$body = @curl_exec($ch);
 
@@ -96,7 +100,7 @@ class Feed
 		else {
 			$ctx = stream_context_create([
 				'http' => [
-					'header'          => 'User-Agent: oPodSync',
+					'header'          => "User-Agent: oPodSync\r\nAccept-Encoding: gzip",
 					'max_redirects'   => 5,
 					'follow_location' => true,
 					'timeout'         => 30,
@@ -111,6 +115,11 @@ class Feed
 			]);
 
 			$body = @file_get_contents($this->feed_url, false, $ctx);
+
+			// Check if response is gzipped
+			if ($body && substr($body, 0, 2) === "\x1f\x8b") {
+				$body = @gzdecode($body);
+			}
 		}
 
 		$this->last_fetch = time();
@@ -119,7 +128,15 @@ class Feed
 			return false;
 		}
 
-		$xml = simplexml_load_string($body);
+		// Remove any UTF-8 BOM if present
+		$body = preg_replace("/^(\xef\xbb\xbf|\\x00\\x00\\xfe\\xff|\\xff\\xfe\\x00\\x00|\\xff\\xfe|\\xfe\\xff)/", "", $body);
+
+		$xml = @simplexml_load_string($body);
+
+		if (!$xml) {
+			return false;
+		}
+
 		$xml->registerXPathNamespace('itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd');
 
 		foreach ($xml->channel->item as $item) {
