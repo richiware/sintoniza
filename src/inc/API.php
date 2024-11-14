@@ -12,6 +12,17 @@ class API
 	protected ?string $format = null;
 	protected DB $db;
 
+	// Define allowed actions for episodes
+	protected const ALLOWED_EPISODE_ACTIONS = ['download', 'play', 'delete', 'new'];
+
+	// Define validation patterns
+	protected const VALIDATION_PATTERNS = [
+		'deviceid' => '/^[\w.-]+$/',
+		'url' => '!^https?://[^/]+!',
+		'username' => '/^[a-zA-Z0-9_-]+$/',
+		'timestamp' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/'
+	];
+
 	public function __construct(DB $db)
 	{
 		session_name('sessionid');
@@ -46,9 +57,32 @@ class API
 		$this->base_url = $url;
 	}
 
+	/**
+	 * Validate input against pattern
+	 * @throws InvalidArgumentException
+	 */
+	protected function validatePattern(string $input, string $pattern, string $fieldName): void
+	{
+		if (!isset(self::VALIDATION_PATTERNS[$pattern])) {
+			throw new InvalidArgumentException("Invalid validation pattern specified");
+		}
+
+		if (!preg_match(self::VALIDATION_PATTERNS[$pattern], $input)) {
+			$this->error(400, sprintf(__('messages.invalid_%s'), $fieldName));
+		}
+	}
+
+	/**
+	 * Sanitize input string
+	 */
+	protected function sanitizeString(string $input): string
+	{
+		return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
+	}
+
 	public function url(string $path = ''): string
 	{
-		return $this->base_url . $path;
+		return $this->base_url . $this->sanitizeString($path);
 	}
 
 	public function debug(string $message, ...$params): void
@@ -61,15 +95,24 @@ class API
 	}
 
     public function queryWithData(string $sql, ...$params): array {
+        // Validate SQL query
+        if (empty($sql)) {
+            throw new InvalidArgumentException("SQL query cannot be empty");
+        }
+
         $result = $this->db->iterate($sql, ...$params);
         $out = [];
 
         foreach ($result as $row) {
-            // Mudança na manipulação de JSON pois MySQL já retorna como string
             if (isset($row->data) && is_string($row->data)) {
-                $jsonData = json_decode($row->data, true, 512, JSON_THROW_ON_ERROR);
-                $row = (object) array_merge($jsonData, (array) $row);
-                unset($row->data);
+                try {
+                    $jsonData = json_decode($row->data, true, 512, JSON_THROW_ON_ERROR);
+                    $row = (object) array_merge($jsonData, (array) $row);
+                    unset($row->data);
+                } catch (JsonException $e) {
+                    $this->debug('JSON decode error: %s', $e->getMessage());
+                    continue;
+                }
             }
             $out[] = (array) $row;
         }
@@ -85,7 +128,8 @@ class API
 
 		http_response_code($code);
 		header('Content-Type: application/json', true);
-		echo json_encode(compact('code', 'message'), JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
+		echo json_encode(['code' => $code, 'message' => $this->sanitizeString($message)], 
+			JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
 		exit;
 	}
 
@@ -94,23 +138,25 @@ class API
 	 */
 	public function requireMethod(string $method): void {
 		if ($method !== $this->method) {
-			$this->error(405, 'Invalid HTTP method: ' . $this->method);
+			$this->error(405, 'Invalid HTTP method: ' . $this->sanitizeString($this->method));
 		}
 	}
 
 	/**
 	 * @throws JsonException
 	 */
-	public function validateURL(string $url): void {
-		if (!preg_match('!^https?://[^/]+!', $url)) {
-			$this->error(400, __('messages.invalid_url') . ' ' . $url);
-		}
+	public function validateURL(string $url): void
+	{
+		$this->validatePattern($url, 'url', 'url');
 	}
 
 	public function getDeviceID(string $deviceid, int $user_id) {
 		if (isset($deviceid)) {
+			$this->validatePattern($deviceid, 'deviceid', 'device_id');
+			
 			$this->debug('Procurando o ID do dispositivo para deviceid: %s e usuário: %d', $deviceid, $user_id);
-			$device_id = $this->db->firstColumn('SELECT id FROM devices WHERE deviceid = ? AND user = ?;', $deviceid, $user_id);
+			$device_id = $this->db->firstColumn('SELECT id FROM devices WHERE deviceid = ? AND user = ?;', 
+				$deviceid, $user_id);
 			$this->debug('ID do dispositivo encontrado: %s', $device_id ?? 'null');
 			return $device_id;
 		} else {
@@ -129,7 +175,16 @@ class API
 		}
 
 		$input = file_get_contents('php://input');
-		return json_decode($input, false, 512, JSON_THROW_ON_ERROR);
+		
+		if (empty($input)) {
+			return null;
+		}
+
+		try {
+			return json_decode($input, false, 512, JSON_THROW_ON_ERROR);
+		} catch (JsonException $e) {
+			$this->error(400, __('messages.invalid_json'));
+		}
 	}
 
 	/**
@@ -149,7 +204,7 @@ class API
 			$this->error(200, __('messages.logged_out'));
 		}
 		elseif ($action !== 'login') {
-			$this->error(404, __('messages.unknown_login_action') . ' ' . $action);
+			$this->error(404, __('messages.unknown_login_action') . ' ' . $this->sanitizeString($action));
 		}
 
 		if (empty($_SERVER['PHP_AUTH_USER']) || empty($_SERVER['PHP_AUTH_PW'])) {
@@ -165,6 +220,9 @@ class API
 	{
 		$login = $_SERVER['PHP_AUTH_USER'];
 		list($login) = explode('__', $login, 2);
+
+		// Validate username
+		$this->validatePattern($login, 'username', 'username');
 
 		$user = $this->db->firstRow('SELECT id, password FROM users WHERE name = ?;', $login);
 
@@ -232,7 +290,6 @@ class API
 	public function route()
 	{
 		switch ($this->section) {
-			// Not implemented
 			case 'tag':
 			case 'tags':
 			case 'data':
@@ -267,7 +324,7 @@ class API
 		if ($this->url === 'index.php/login/v2') {
 			$this->requireMethod('POST');
 
-			$id = sha1(random_bytes(16));
+			$id = bin2hex(random_bytes(16));
 
 			return [
 				'poll' => [
@@ -295,7 +352,7 @@ class API
 			return [
 				'server' => $this->url(),
 				'loginName' => $_SESSION['user']->name,
-				'appPassword' => $_SESSION['app_password'], // FIXME provide a real app-password here
+				'appPassword' => $_SESSION['app_password'],
 			];
 		}
 
@@ -317,7 +374,6 @@ class API
 			$this->error(401, __('messages.invalid_username'));
 		}
 
-		// FIXME store a real app password instead of this hack
 		$token = strtok($_SERVER['PHP_AUTH_PW'], ':');
 		$password = strtok('');
 		$app_password = sha1($user->password . $token);
@@ -382,9 +438,9 @@ class API
 			$this->error(501, __('messages.output_format_not_implemented'));
 		}
 
-		// For gPodder
 		if (preg_match('!(\w+__\w{10})!i', $this->path, $match)) {
 			$username = $match[1];
+			$this->validatePattern($username, 'username', 'username');
 		}
 
 		if ($this->section === 'auth') {
@@ -423,23 +479,26 @@ class API
 	public function devices(): array
 	{
 		if ($this->method === 'GET') {
-			return $this->queryWithData('SELECT deviceid as id, user, deviceid, name, data FROM devices WHERE user = ?;', $this->user->id);
+			return $this->queryWithData('SELECT deviceid as id, user, deviceid, name, data 
+				FROM devices WHERE user = ?;', $this->user->id);
 		}
 
 		if ($this->method === 'POST') {
 			$deviceid = explode('/', $this->path)[1] ?? null;
 
-			if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
+			if (!$deviceid) {
 				$this->error(400, __('messages.invalid_device_id'));
 			}
 
+			$this->validatePattern($deviceid, 'deviceid', 'device_id');
+
 			$json = $this->getInput();
-			$json ??= [];
+			$json ??= new stdClass();
 			$json->subscriptions = 0;
 
 			$params = [
 				'deviceid' => $deviceid,
-				'data'     => json_encode($json),
+				'data'     => json_encode($json, JSON_THROW_ON_ERROR),
 				'name'     => $json->caption ?? null,
 				'user'     => $this->user->id,
 			];
@@ -457,25 +516,33 @@ class API
     public function subscriptions()
     {
         $v2 = strpos($this->url, 'api/2/') !== false;
-
-        // We don't care about deviceid yet (FIXME)
         $deviceid = explode('/', $this->path)[1] ?? null;
 
         if ($this->method === 'GET' && !$v2) {
-            return $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ?;', $this->user->id);
+            return $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ?;', 
+				$this->user->id);
         }
 
-        if (!$deviceid || !preg_match('/^[\w.-]+$/', $deviceid)) {
+        if (!$deviceid) {
             $this->error(400, __('messages.invalid_device_id'));
         }
 
-        // Get Subscription Changes
+        $this->validatePattern($deviceid, 'deviceid', 'device_id');
+
         if ($v2 && $this->method === 'GET') {
             $timestamp = (int)($_GET['since'] ?? 0);
 
             return [
-                'add' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 0 AND changed >= ?;', $this->user->id, $timestamp),
-                'remove' => $this->db->rowsFirstColumn('SELECT url FROM subscriptions WHERE user = ? AND deleted = 1 AND changed >= ?;', $this->user->id, $timestamp),
+                'add' => $this->db->rowsFirstColumn(
+					'SELECT url FROM subscriptions WHERE user = ? AND deleted = 0 AND changed >= ?;', 
+					$this->user->id, 
+					$timestamp
+				),
+                'remove' => $this->db->rowsFirstColumn(
+					'SELECT url FROM subscriptions WHERE user = ? AND deleted = 1 AND changed >= ?;', 
+					$this->user->id, 
+					$timestamp
+				),
                 'update_urls' => [],
                 'timestamp' => time(),
             ];
@@ -490,7 +557,8 @@ class API
 
             try {
                 $this->db->beginTransaction();
-                $st = $this->db->prepare('INSERT IGNORE INTO subscriptions (user, url, changed) VALUES (:user, :url, :changed)');
+                $st = $this->db->prepare('INSERT IGNORE INTO subscriptions (user, url, changed) 
+					VALUES (:user, :url, :changed)');
 
                 foreach ($lines as $url) {
                     $this->validateURL($url);
@@ -516,7 +584,6 @@ class API
 
             try {
                 $this->db->beginTransaction();
-
                 $ts = time();
 
                 if (!empty($input->add) && is_array($input->add)) {
@@ -567,6 +634,28 @@ class API
 	}
 
 	/**
+	 * Validate episode action
+	 * @throws InvalidArgumentException
+	 */
+	protected function validateEpisodeAction(object $action): void
+	{
+		if (!isset($action->podcast, $action->action, $action->episode)) {
+			throw new InvalidArgumentException(__('messages.missing_action_key'));
+		}
+
+		if (!in_array(strtolower($action->action), self::ALLOWED_EPISODE_ACTIONS)) {
+			throw new InvalidArgumentException(__('messages.invalid_action'));
+		}
+
+		$this->validateURL($action->podcast);
+		$this->validateURL($action->episode);
+
+		if (!empty($action->timestamp)) {
+			$this->validatePattern($action->timestamp, 'timestamp', 'timestamp');
+		}
+	}
+
+	/**
 	 * @throws JsonException
 	 */
 	public function episodes(): array
@@ -576,7 +665,8 @@ class API
 	
 			return [
 				'timestamp' => time(),
-				'actions' => $this->queryWithData('SELECT e.url AS episode, e.action, e.data, s.url AS podcast,
+				'actions' => $this->queryWithData(
+					'SELECT e.url AS episode, e.action, e.data, s.url AS podcast,
 					DATE_FORMAT(FROM_UNIXTIME(e.changed), "%Y-%m-%dT%H:%i:%sZ") AS timestamp
 					FROM episodes_actions e
 					INNER JOIN subscriptions s ON s.id = e.subscription
@@ -599,28 +689,31 @@ class API
 			$this->db->beginTransaction();
 	
 			$timestamp = time();
-			$st = $this->db->prepare('INSERT INTO episodes_actions 
+			$st = $this->db->prepare(
+				'INSERT INTO episodes_actions 
 				(user, subscription, url, episode, changed, action, data, device) 
 				VALUES 
-				(:user, :subscription, :url, :episode, :changed, :action, :data, :device)');
+				(:user, :subscription, :url, :episode, :changed, :action, :data, :device)'
+			);
 	
 			foreach ($input as $action) {
-				if (!isset($action->podcast, $action->action, $action->episode)) {
+				try {
+					$this->validateEpisodeAction($action);
+				} catch (InvalidArgumentException $e) {
 					$this->db->rollBack();
-					$this->error(400, __('messages.missing_action_key'));
+					$this->error(400, $e->getMessage());
 				}
 	
-				$this->validateURL($action->podcast);
-				$this->validateURL($action->episode);
-	
 				// Get subscription ID or create new subscription
-				$subscription_id = $this->db->firstColumn('SELECT id FROM subscriptions WHERE url = ? AND user = ?;', 
+				$subscription_id = $this->db->firstColumn(
+					'SELECT id FROM subscriptions WHERE url = ? AND user = ?;', 
 					$action->podcast, 
 					$this->user->id
 				);
 	
 				if (!$subscription_id) {
-					$this->db->simple('INSERT INTO subscriptions (user, url, changed) VALUES (?, ?, ?);', 
+					$this->db->simple(
+						'INSERT INTO subscriptions (user, url, changed) VALUES (?, ?, ?);', 
 						$this->user->id, 
 						$action->podcast, 
 						$timestamp
@@ -629,12 +722,14 @@ class API
 				}
 	
 				// Get feed ID from subscription
-				$feed_id = $this->db->firstColumn('SELECT feed FROM subscriptions WHERE id = ?', $subscription_id);
+				$feed_id = $this->db->firstColumn('SELECT feed FROM subscriptions WHERE id = ?', 
+					$subscription_id);
 	
 				// Try to get episode ID from episodes table
 				$episode_id = null;
 				if ($feed_id) {
-					$episode_id = $this->db->firstColumn('SELECT id FROM episodes WHERE media_url = ? AND feed = ?',
+					$episode_id = $this->db->firstColumn(
+						'SELECT id FROM episodes WHERE media_url = ? AND feed = ?',
 						$action->episode,
 						$feed_id
 					);
@@ -646,21 +741,24 @@ class API
 					$device_id = $this->getDeviceID($action->device, $this->user->id);
 				}
 	
-				$st->bindValue(':user', $this->user->id);
-				$st->bindValue(':subscription', $subscription_id);
-				$st->bindValue(':url', $action->episode);
-				$st->bindValue(':episode', $episode_id); // Pode ser null inicialmente
-				$st->bindValue(':changed', !empty($action->timestamp) ? strtotime($action->timestamp) : $timestamp);
-				$st->bindValue(':action', strtolower($action->action));
-				$st->bindValue(':device', $device_id);
-				unset($action->action, $action->episode, $action->podcast, $action->device);
-				$st->bindValue(':data', json_encode($action, JSON_THROW_ON_ERROR));
-				$st->execute();
+				$actionData = clone $action;
+				unset($actionData->action, $actionData->episode, $actionData->podcast, $actionData->device);
+	
+				$st->execute([
+					':user' => $this->user->id,
+					':subscription' => $subscription_id,
+					':url' => $action->episode,
+					':episode' => $episode_id,
+					':changed' => !empty($action->timestamp) ? strtotime($action->timestamp) : $timestamp,
+					':action' => strtolower($action->action),
+					':device' => $device_id,
+					':data' => json_encode($actionData, JSON_THROW_ON_ERROR)
+				]);
 			}
 	
 			$this->db->commit();
 	
-			return compact('timestamp') + ['update_urls' => []];
+			return ['timestamp' => $timestamp, 'update_urls' => []];
 		}
 		catch (Exception $e) {
 			$this->db->rollBack();

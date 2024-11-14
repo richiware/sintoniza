@@ -43,8 +43,3 @@ set_exception_handler(function ($e) {
 	echo '</pre>';
 	exit;
 });
-
-// Fix issues with badly configured web servers
-if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
-	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
-}

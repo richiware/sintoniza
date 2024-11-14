@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/config.php';
 
-$backtrace = null;
-
 if (PHP_SAPI === 'cli-server' && file_exists(__DIR__ . $_SERVER['REQUEST_URI']) && !is_dir(__DIR__ . $_SERVER['REQUEST_URI'])) {
 	return false;
+}
+
+// Fix issues with badly configured web servers
+if (!isset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+	@list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':', base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 }
 
 $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
