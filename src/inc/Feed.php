@@ -25,6 +25,26 @@ class Feed
 		$this->feed_url = $url;
 	}
 
+	protected const MAX_DURATION = 86400;
+	protected const MIN_DURATION = 20;
+	protected function validateDuration($duration): ?int
+    {
+        if ($duration === null) {
+            return null;
+        }
+
+        $duration = (int)$duration;
+        if ($duration > self::MAX_DURATION) {
+            $duration = (int)($duration / (128 * 1024 / 8));
+        }
+
+        if ($duration < self::MIN_DURATION || $duration > self::MAX_DURATION) {
+            return null;
+        }
+
+        return $duration;
+    }
+
 	public function load(\stdClass $data): void
 	{
 		foreach ($data as $key => $value) {
@@ -84,7 +104,7 @@ class Feed
                 $episode['description'] = $episode['description'] ?? null;
                 $episode['url'] = $episode['url'] ?? null;
                 $episode['image_url'] = $episode['image_url'] ?? null;
-                $episode['duration'] = $episode['duration'] ?? null;
+                $episode['duration'] = $this->validateDuration($episode['duration']);
                 
                 $episode_data[] = $episode;
             }
@@ -377,12 +397,7 @@ class Feed
 			$duration = (int) $str;
 		}
 
-		// Duration is less than 20 seconds? probably an error
-		if ($duration <= 20) {
-			return null;
-		}
-
-		return $duration;
+		return $this->validateDuration($duration);
 	}
 
 	public function export(): array
