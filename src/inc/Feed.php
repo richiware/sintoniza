@@ -12,6 +12,14 @@ class Feed
 	public int $last_fetch;
 	protected array $episodes = [];
 
+	protected const NAMESPACES = [
+		'itunes' => 'http://www.itunes.com/dtds/podcast-1.0.dtd',
+		'content' => 'http://purl.org/rss/1.0/modules/content/',
+		'media' => 'http://search.yahoo.com/mrss/',
+		'dc' => 'http://purl.org/dc/elements/1.1/',
+		'atom' => 'http://www.w3.org/2005/Atom'
+	];
+
 	public function __construct(string $url)
 	{
 		$this->feed_url = $url;
@@ -32,44 +40,114 @@ class Feed
 		}
 	}
 
+	protected function registerNamespaces(\SimpleXMLElement $xml): void
+    {
+        foreach (self::NAMESPACES as $prefix => $uri) {
+            $xml->registerXPathNamespace($prefix, $uri);
+        }
+    }
+
+	protected function safeXPath(\SimpleXMLElement $xml, string $path): array
+    {
+        try {
+            return $xml->xpath($path) ?: [];
+        } catch (Exception $e) {
+            return [];
+        }
+    }
+
 	public function sync(DB $db): void
     {
         $db->exec('START TRANSACTION');
         
         try {
-            // Inserir/atualizar feed
+            // Insert/update feed and get ID in one operation
             $db->upsert('feeds', $this->export(), ['feed_url']);
             $feed_id = $db->firstColumn('SELECT id FROM feeds WHERE feed_url = ?', $this->feed_url);
             
-            // Atualizar subscrições
+            // Batch update subscriptions
             $db->simple('UPDATE subscriptions SET feed = ? WHERE url = ?', $feed_id, $this->feed_url);
 
-            // Inserir/atualizar episódios
+            // Prepare batch episode data
+            $episode_data = [];
             foreach ($this->episodes as $episode) {
                 $episode = (array) $episode;
+                
+                // Skip episodes without required media_url
+                if (empty($episode['media_url'])) {
+                    continue;
+                }
+
                 $episode['pubdate'] = $episode['pubdate'] ? $episode['pubdate']->format('Y-m-d H:i:s') : null;
                 $episode['feed'] = $feed_id;
+                $episode['title'] = $episode['title'] ?? null;
+                $episode['description'] = $episode['description'] ?? null;
+                $episode['url'] = $episode['url'] ?? null;
+                $episode['image_url'] = $episode['image_url'] ?? null;
+                $episode['duration'] = $episode['duration'] ?? null;
                 
-                $db->upsert('episodes', $episode, ['feed', 'media_url']);
-                
-                // Atualizar referências nas ações
-                $id = $db->firstColumn('SELECT id FROM episodes WHERE media_url = ? AND feed = ?', 
-                    $episode['media_url'], 
-                    $feed_id
-                );
-                
-                if ($id) {
-                    $db->simple('UPDATE episodes_actions SET episode = ? WHERE url = ?', 
-                        $id, 
-                        $episode['media_url']
+                $episode_data[] = $episode;
+            }
+
+            // Only proceed if we have valid episodes
+            if (!empty($episode_data)) {
+                // Create temporary table with proper UTF8MB4 encoding and column types
+                $db->exec('CREATE TEMPORARY TABLE tmp_episodes (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    media_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+                    feed INT NOT NULL,
+                    title TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                    description MEDIUMTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                    url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                    image_url TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+                    pubdate DATETIME,
+                    duration INT,
+                    INDEX (id),
+                    INDEX (feed)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci');
+
+                // Batch insert into temporary table
+                foreach ($episode_data as $episode) {
+                    $db->simple('INSERT INTO tmp_episodes (media_url, feed, title, description, url, image_url, pubdate, duration) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                        $episode['media_url'],
+                        $episode['feed'],
+                        $episode['title'],
+                        $episode['description'],
+                        $episode['url'],
+                        $episode['image_url'],
+                        $episode['pubdate'],
+                        $episode['duration']
                     );
                 }
+
+                // Perform batch upsert using a JOIN approach
+                $db->exec('INSERT INTO episodes (feed, media_url, title, description, url, image_url, pubdate, duration)
+                    SELECT tmp.feed, tmp.media_url, tmp.title, tmp.description, tmp.url, tmp.image_url, tmp.pubdate, tmp.duration
+                    FROM tmp_episodes tmp
+                    ON DUPLICATE KEY UPDATE
+                        title = VALUES(title),
+                        description = VALUES(description),
+                        url = VALUES(url),
+                        image_url = VALUES(image_url),
+                        pubdate = VALUES(pubdate),
+                        duration = VALUES(duration)');
+
+                // Update episode actions using a JOIN approach
+                $db->simple('UPDATE episodes_actions ea
+                    INNER JOIN episodes e ON e.media_url = ea.url
+                    SET ea.episode = e.id
+                    WHERE e.feed = ?', $feed_id);
+
+                // Clean up temporary table
+                $db->exec('DROP TEMPORARY TABLE IF EXISTS tmp_episodes');
             }
 
             $db->exec('COMMIT');
         }
         catch (Exception $e) {
             $db->exec('ROLLBACK');
+            $db->exec('DROP TEMPORARY TABLE IF EXISTS tmp_episodes');
             throw $e;
         }
     }
@@ -137,76 +215,150 @@ class Feed
 			return false;
 		}
 
-		$xml->registerXPathNamespace('itunes', 'http://www.itunes.com/dtds/podcast-1.0.dtd');
+		// Register all namespaces early
+		$this->registerNamespaces($xml);
 
-		foreach ($xml->channel->item as $item) {
-
-			$title = isset($item->title) ? trim((string) $item->title) : null;
-			if(isset($item->description)) {
-				$description = trim((string) $item->description);
-			} elseif(isset($item->{'content:encoded'})) {
-				$description = trim((string) $item->{'content:encoded'});
-			} else {
-				$description = null;
+		// Handle both RSS and Atom feed formats
+		if (isset($xml->channel)) {
+			// RSS feed
+			$channel = $xml->channel;
+			$items = $channel->item;
+			$this->title = (string)$channel->title;
+			$this->url = (string)$channel->link;
+			$this->description = (string)$channel->description;
+			$pubdate = $channel->lastBuildDate;
+			$language = $channel->language;
+			
+			// Try multiple image sources
+			$itunesImage = $this->safeXPath($channel, 'itunes:image/@href');
+			if (!empty($itunesImage)) {
+				$this->image_url = trim((string)$itunesImage[0]);
+			} elseif(isset($channel->image->url)) {
+				$this->image_url = trim((string)$channel->image->url);
 			}
-			$link = isset($item->link) ? trim((string) $item->link) : null;
-			$pubDate = isset($item->pubDate) ? trim((string) $item->pubDate) : null;
-			$audioUrl = isset($item->enclosure['url']) ? trim((string) $item->enclosure['url']) : null;
-
-			if (isset($item->enclosure['length']) && ctype_digit((string) $item->enclosure['length'])) {
-				$duration = (int) $item->enclosure['length'];
-			} elseif (isset($item->xpath('itunes:duration')[0])) {
-				$duration = $this->getDuration((string) $item->xpath('itunes:duration')[0]);
-			} else {
-				$duration = null;
+		} elseif (isset($xml->entry)) {
+			// Atom feed
+			$channel = $xml;
+			$items = $xml->entry;
+			$this->title = (string)$channel->title;
+			
+			// Handle Atom link
+			foreach ($channel->link as $link) {
+				if ((string)$link['rel'] === 'alternate' || !isset($link['rel'])) {
+					$this->url = (string)$link['href'];
+					break;
+				}
 			}
-
-			if(isset($item->xpath('itunes:image/@href')[0])) {
-				$imageUrl = trim((string) $item->xpath('itunes:image/@href')[0]);
-			} elseif(isset($item->{'media:content'}['url'])) {
-				$imageUrl = trim((string) $item->{'media:content'}['url']);
-			} else {
-				$imageUrl = null;
+			
+			$this->description = (string)($channel->subtitle ?? $channel->summary ?? '');
+			$pubdate = $channel->updated;
+			$language = $channel->{'xml:lang'};
+			
+			if(isset($channel->logo)) {
+				$this->image_url = trim((string)$channel->logo);
+			} elseif(isset($channel->icon)) {
+				$this->image_url = trim((string)$channel->icon);
 			}
-
-			$guid = isset($item->guid) ? trim((string) $item->guid) : null;
-			$creator = isset($item->{'dc:creator'}) ? trim((string) $item->{'dc:creator'}) : null;
-			$episodeType = isset($item->xpath('itunes:episodeType')[0]) ? trim((string) $item->xpath('itunes:episodeType')[0]) : 'Tipo de episódio não disponível';
-
-			$this->episodes[] = (object) [
-				'image_url'   => $imageUrl,
-				'url'         => $link,
-				'media_url'   => $audioUrl,
-				'pubdate'     => $pubDate ? new \DateTime($pubDate) : null,
-				'title'       => $title,
-				'description' => $description,
-				'duration'    => $duration,
-			];
+		} else {
+			// Unknown feed format
+			return false;
 		}
-
-		$pubdate = $xml->channel->lastBuildDate;
-		$language = $xml->channel->language;
-
-		$this->title = $xml->channel->title;
 
 		if (!$this->title) {
 			return false;
 		}
 
-		$this->url = $xml->channel->link;
-		$this->description = $xml->channel->description;
-		$this->language = $language ? substr($language, 0, 2) : null;
+		if ($items) {
+			foreach ($items as $item) {
+				// For Atom feeds, handle enclosure differently
+				$audioUrl = null;
+				if (isset($item->enclosure['url'])) {
+					$audioUrl = trim((string)$item->enclosure['url']);
+				} elseif (isset($item->link)) {
+					// Check if link is audio content in Atom feeds
+					foreach ($item->link as $link) {
+						$type = (string)$link['type'];
+						if (strpos($type, 'audio/') === 0) {
+							$audioUrl = trim((string)$link['href']);
+							break;
+						}
+					}
+				}
 
-		if(isset($xml->channel->{'itunes:image'}['href'])) {
-			$imageUrl = trim((string) $xml->channel->{'itunes:image'}['href']);
-		} elseif(isset($xml->channel->image->url)) {
-			$imageUrl = trim((string) $xml->channel->image->url);
-		} else {
-			$imageUrl = null;
+				// Skip if no audio URL found
+				if (!$audioUrl) {
+					continue;
+				}
+
+				$title = isset($item->title) ? trim((string)$item->title) : null;
+				
+				// Handle different description elements
+				if(isset($item->description)) {
+					$description = trim((string)$item->description);
+				} elseif(isset($item->{'content:encoded'})) {
+					$description = trim((string)$item->{'content:encoded'});
+				} elseif(isset($item->content)) {
+					$description = trim((string)$item->content);
+				} else {
+					$description = null;
+				}
+
+				// Handle different link formats
+				$link = null;
+				if (isset($item->link)) {
+					if (is_string($item->link)) {
+						$link = trim((string)$item->link);
+					} elseif (isset($item->link['href'])) {
+						$link = trim((string)$item->link['href']);
+					}
+				}
+
+				// Handle different date formats
+				$pubDate = null;
+				if (isset($item->pubDate)) {
+					$pubDate = trim((string)$item->pubDate);
+				} elseif (isset($item->published)) {
+					$pubDate = trim((string)$item->published);
+				} elseif (isset($item->updated)) {
+					$pubDate = trim((string)$item->updated);
+				}
+
+				// Get duration using safe xpath
+				$duration = null;
+				if (isset($item->enclosure['length']) && ctype_digit((string)$item->enclosure['length'])) {
+					$duration = (int)$item->enclosure['length'];
+				} else {
+					$durationNodes = $this->safeXPath($item, 'itunes:duration');
+					if (!empty($durationNodes)) {
+						$duration = $this->getDuration((string)$durationNodes[0]);
+					}
+				}
+
+				// Handle different image formats using safe xpath
+				$imageUrl = null;
+				$itunesImage = $this->safeXPath($item, 'itunes:image/@href');
+				if (!empty($itunesImage)) {
+					$imageUrl = trim((string)$itunesImage[0]);
+				} elseif(isset($item->{'media:content'}['url'])) {
+					$imageUrl = trim((string)$item->{'media:content'}['url']);
+				} elseif(isset($item->{'media:thumbnail'}['url'])) {
+					$imageUrl = trim((string)$item->{'media:thumbnail'}['url']);
+				}
+
+				$this->episodes[] = (object) [
+					'image_url'   => $imageUrl,
+					'url'         => $link,
+					'media_url'   => $audioUrl,
+					'pubdate'     => $pubDate ? new \DateTime($pubDate) : null,
+					'title'       => $title,
+					'description' => $description,
+					'duration'    => $duration,
+				];
+			}
 		}
 
-		$this->image_url = $imageUrl;
-		$this->pubdate = $pubdate ? new \DateTime($pubdate) : null;
+		$this->language = $language ? substr((string)$language, 0, 2) : null;
+		$this->pubdate = $pubdate ? new \DateTime((string)$pubdate) : null;
 
 		return true;
 	}
