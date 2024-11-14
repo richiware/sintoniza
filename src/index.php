@@ -39,7 +39,10 @@ if($gpodder->isLogged()) {
 	date_default_timezone_set('UTC');
 }
 
-function format_description(string $str): string {
+function format_description(?string $str): string {
+	if ($str === null) {
+		return '';
+	}
 	$str = str_replace('</p>', "\n\n", $str);
 	$str = preg_replace_callback('!<a[^>]*href=(".*?"|\'.*?\'|\S+)[^>]*>(.*?)</a>!i', function ($match) {
 		$url = trim($match[1], '"\'');

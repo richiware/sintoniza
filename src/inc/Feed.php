@@ -80,7 +80,7 @@ class Feed
 			$ch = curl_init($this->feed_url);
 			curl_setopt($ch, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: oPodSync']);
-			curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+			curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 			curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 			curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -99,7 +99,7 @@ class Feed
 					'header'          => 'User-Agent: oPodSync',
 					'max_redirects'   => 5,
 					'follow_location' => true,
-					'timeout'         => 10,
+					'timeout'         => 30,
 					'ignore_errors'   => true,
 				],
 				'ssl'  => [

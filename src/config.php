@@ -5,7 +5,7 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
 // Define
-$version = "1.11.1";
+$version = "1.11.2";
 define("VERSION", $version);
 define("DB_HOST", isset($_ENV['DB_HOST']) ? $_ENV['DB_HOST'] : 'localhost');
 define("DB_USER", isset($_ENV['DB_USER']) ? $_ENV['DB_USER'] : 'root');
