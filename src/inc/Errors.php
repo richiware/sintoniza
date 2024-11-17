@@ -16,6 +16,8 @@ set_error_handler(static function ($severity, $message, $file, $line) {
 	throw new \ErrorException($message, 0, $severity, $file, $line);
 });
 
+ini_set('error_log', __DIR__ . '/../logs/error.log');
+
 set_exception_handler(function ($e) {
 	@http_response_code(500);
 	error_log((string)$e);
@@ -24,7 +26,7 @@ set_exception_handler(function ($e) {
 	
 	error_log((string) $e);
 
-	if (defined('DEBUG') && DEBUG == true) {
+	if (defined('DEBUG') && DEBUG) {
 		echo $e;
 
 		global $backtrace;
