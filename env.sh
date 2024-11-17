@@ -14,6 +14,7 @@ REQUIRED_ENV_VARS=(
     "DB_HOST"
     "DB_USER"
     "DB_PASS"
+	"DB_NAME"
     "BASE_URL"
     "TITLE"
 	"SMTP_USER"
@@ -34,6 +35,7 @@ echo "Criando variáveis arquivo de variaveis de ambiente."
 echo "DB_HOST=${DB_HOST}" >> /app/.env
 echo "DB_USER=${DB_USER}" >> /app/.env
 echo "DB_PASS=${DB_PASS}" >> /app/.env
+echo "DB_NAME=${DB_NAME}" >> /app/.env
 echo "BASE_URL=${BASE_URL}" >> /app/.env
 echo "TITLE=${TITLE}" >> /app/.env
 
