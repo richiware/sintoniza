@@ -20,7 +20,7 @@ class API
 		'deviceid' => '/^[\w.-]+$/',
 		'url' => '!^https?://[^/]+!',
 		'username' => '/^[a-zA-Z0-9_-]+$/',
-		'timestamp' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/'
+		'timestamp' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:?\d{2})?$/'
 	];
 
 	public function __construct(DB $db)
