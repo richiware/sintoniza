@@ -1,43 +1,27 @@
 <?php
     require_once __DIR__ . '/../config.php';
-    $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+    require_once __DIR__ . '/../inc/StatisticsCache.php';
 
+    $db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+    $cache = new StatisticsCache($db);
+    
     function format_number($num) {
         return number_format($num, 0, ',', '.');
     }
     
-    $total_users = $db->firstColumn("SELECT COUNT(*) FROM users");
-    $total_devices = $db->firstColumn("SELECT COUNT(*) FROM devices");
+    // Try to get cached stats
+    $stats = $cache->getCachedStats();
     
-    $top_feeds = $db->all("
-        SELECT 
-            f.title,
-            f.feed_url,
-            f.url,
-            COUNT(s.id) as subscription_count
-        FROM feeds f
-        JOIN subscriptions s ON s.feed = f.id
-        WHERE s.deleted = 0
-        GROUP BY f.id
-        ORDER BY subscription_count DESC
-        LIMIT 10
-    ");
-
-    $top_played = $db->all("
-        SELECT 
-            e.title,
-            e.url as episode_url,
-            f.url as feed_url,
-            f.title as feed_title,
-            COUNT(DISTINCT ea.user) as play_count
-        FROM episodes e
-        JOIN feeds f ON e.feed = f.id
-        JOIN episodes_actions ea ON ea.episode = e.id
-        WHERE ea.action = 'play'
-        GROUP BY e.id
-        ORDER BY play_count DESC
-        LIMIT 10
-    ");
+    // If cache is missing or expired, regenerate it
+    if ($stats === null) {
+        $cache->generateCache();
+        $stats = $cache->getCachedStats();
+    }
+    
+    $total_users = $stats->total_users;
+    $total_devices = $stats->total_devices;
+    $top_feeds = $stats->top_feeds;
+    $top_played = $stats->top_played;
 ?>
 <h2 class="fs-3 mb-3"><?php echo __('general.statistics');?></h2>
 
@@ -78,7 +62,7 @@
 <div class="tab-content" id="dashboard">
     <div class="tab-pane fade show active border border-top-0 bg-white rounded-bottom" id="top_feeds" role="tabpanel" aria-labelledby="top_feeds-tab">
         <ol class="list-group list-group-numbered p-3">
-            <?php foreach ($top_feeds as $i => $feed) { ?>
+            <?php foreach ($top_feeds as $feed) { ?>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="ms-2 me-auto">
                         <div class="fw-bold"><a href="<?php echo htmlspecialchars($feed->url) ?>" class="link-dark" target="_blank"><?php echo htmlspecialchars($feed->title) ?></a></div>
@@ -90,7 +74,7 @@
     </div>
     <div class="tab-pane fade border border-top-0 bg-white rounded-bottom" id="top_played" role="tabpanel" aria-labelledby="devices-tab">
         <ol class="list-group list-group-numbered p-3">
-            <?php foreach ($top_played as $i => $episode) { ?>
+            <?php foreach ($top_played as $episode) { ?>
                 <li class="list-group-item d-flex justify-content-between align-items-start">
                     <div class="ms-2 me-auto">
                     <div class="fw-bold"><a href="<?php echo htmlspecialchars($episode->episode_url) ?>" class="link-dark" target="_blank"><?php echo htmlspecialchars($episode->title) ?></a></div>

@@ -70,10 +70,6 @@ try {
 
 $gpodder = new GPodder($db);
 
-if (PHP_SAPI === 'cli') {
-	$gpodder->updateAllFeeds(true);
-	exit(0);
-}
 
 function isAdmin(): bool {
     global $gpodder;
