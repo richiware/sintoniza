@@ -22,17 +22,11 @@ class API
 		// Exemplos inválidos: device@123, device#456, device/789
 		'deviceid' => '/^[\w.-]+$/',
 
-		// url: Valida URLs HTTP/HTTPS ou URLs do antennapod_local com content://
-		// Exemplos válidos: 
-		// - http://example.com
-		// - https://test.com
-		// - antennapod_local:content://com.android.externalstorage.documents/tree/...
-		// Exemplos inválidos: 
-		// - ftp://example.com
-		// - example.com (sem protocolo)
-		// - content:// (sem antennapod_local)
-		'url' => '!^(https?://[^/]+|antennapod_local:content://.+)!',
-
+		// url: Valida URLs HTTP/HTTPS, garantindo que comecem com http:// ou https:// seguido de um domínio
+		// Exemplos válidos: http://example.com, https://test.com
+		// Exemplos inválidos: ftp://example.com, example.com (sem protocolo)
+		'url' => '!^https?://[^/]+!',
+		
 		// username: Permite apenas letras (maiúsculas e minúsculas), números, hífens e underscores
 		// Exemplos válidos: user123, user-name, user_name
 		// Exemplos inválidos: user@123, user.name, user space
@@ -99,7 +93,9 @@ class API
 			);
 			file_put_contents('logs/inject.log', $log_message, FILE_APPEND);
 
-			$this->error(400, sprintf(__('errors.invalid_%s'), $fieldName));
+			if ($pattern !== 'url') {
+				$this->error(400, sprintf(__('errors.invalid_%s'), $fieldName));
+			}
 		}
 	}
 
@@ -174,11 +170,26 @@ class API
 	}
 
 	/**
-	 * @throws JsonException
+	 * Validate URL and return true if valid, false if invalid
 	 */
-	public function validateURL(string $url): void
+	public function validateURL(string $url): bool
 	{
-		$this->validatePattern($url, 'url', 'url');
+		if (!isset(self::VALIDATION_PATTERNS['url'])) {
+			return false;
+		}
+
+		if (!preg_match(self::VALIDATION_PATTERNS['url'], $url)) {
+			// Log the validation error with the original input string
+			$log_message = sprintf(
+				"[%s] URL validation error: '%s'\n",
+				date('Y-m-d H:i:s'),
+				$url
+			);
+			file_put_contents('logs/inject.log', $log_message, FILE_APPEND);
+			return false;
+		}
+
+		return true;
 	}
 
 	public function getDeviceID(string $deviceid, int $user_id) {
@@ -592,7 +603,9 @@ class API
 					VALUES (:user, :url, :changed)');
 
                 foreach ($lines as $url) {
-                    $this->validateURL($url);
+                    if (!$this->validateURL($url)) {
+                        continue;
+                    }
 
                     $st->execute([
                         ':url' => $url,
@@ -619,7 +632,9 @@ class API
 
                 if (!empty($input->add) && is_array($input->add)) {
                     foreach ($input->add as $url) {
-                        $this->validateURL($url);
+                        if (!$this->validateURL($url)) {
+                            continue;
+                        }
 
                         $this->db->upsert('subscriptions', [
                             'user'    => $this->user->id,
@@ -632,7 +647,9 @@ class API
 
                 if (!empty($input->remove) && is_array($input->remove)) {
                     foreach ($input->remove as $url) {
-                        $this->validateURL($url);
+                        if (!$this->validateURL($url)) {
+                            continue;
+                        }
 
                         $this->db->upsert('subscriptions', [
                             'user'    => $this->user->id,
@@ -678,8 +695,9 @@ class API
 			throw new InvalidArgumentException(__('messages.invalid_action'));
 		}
 
-		$this->validateURL($action->podcast);
-		$this->validateURL($action->episode);
+		if (!$this->validateURL($action->podcast) || !$this->validateURL($action->episode)) {
+			throw new InvalidArgumentException(__('messages.invalid_url'));
+		}
 
 		if (!empty($action->timestamp)) {
 			$this->validatePattern($action->timestamp, 'timestamp', 'timestamp');
@@ -731,8 +749,7 @@ class API
 				try {
 					$this->validateEpisodeAction($action);
 				} catch (InvalidArgumentException $e) {
-					$this->db->rollBack();
-					$this->error(400, $e->getMessage());
+					continue;
 				}
 	
 				// Get subscription ID or create new subscription
