@@ -17,9 +17,24 @@ class API
 
 	// Define validation patterns
 	protected const VALIDATION_PATTERNS = [
+		// deviceid: Permite caracteres alfanuméricos, pontos, hífens e underscores
+		// Exemplos válidos: device-123, my.device, device_456
+		// Exemplos inválidos: device@123, device#456, device/789
 		'deviceid' => '/^[\w.-]+$/',
+
+		// url: Valida URLs HTTP/HTTPS, garantindo que comecem com http:// ou https:// seguido de um domínio
+		// Exemplos válidos: http://example.com, https://test.com
+		// Exemplos inválidos: ftp://example.com, example.com (sem protocolo)
 		'url' => '!^https?://[^/]+!',
+
+		// username: Permite apenas letras (maiúsculas e minúsculas), números, hífens e underscores
+		// Exemplos válidos: user123, user-name, user_name
+		// Exemplos inválidos: user@123, user.name, user space
 		'username' => '/^[a-zA-Z0-9_-]+$/',
+
+		// timestamp: Valida timestamps no formato ISO 8601
+		// Exemplos válidos: 2023-12-25T10:30:00Z, 2023-12-25T10:30:00.123Z, 2023-12-25T10:30:00+03:00
+		// Exemplos inválidos: 2023-12-25, 10:30:00, 2023/12/25T10:30:00Z
 		'timestamp' => '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:?\d{2})?$/'
 	];
 
@@ -68,6 +83,16 @@ class API
 		}
 
 		if (!preg_match(self::VALIDATION_PATTERNS[$pattern], $input)) {
+			// Log the validation error with the original input string
+			$log_message = sprintf(
+				"[%s] Validation error for pattern '%s' (field: %s): '%s'\n",
+				date('Y-m-d H:i:s'),
+				$pattern,
+				$fieldName,
+				$input
+			);
+			file_put_contents('../logs/inject.log', $log_message, FILE_APPEND);
+
 			$this->error(400, sprintf(__('messages.invalid_%s'), $fieldName));
 		}
 	}
