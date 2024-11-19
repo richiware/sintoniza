@@ -150,6 +150,10 @@ return [
     ],
     'erros' => [
         'debug_log' => 'Ocorreu um erro e foi registrado em logs/error.log',
-        'debug_enable' => 'Habilitar constante DEBUG para ver erros'
+        'debug_enable' => 'Habilitar constante DEBUG para ver erros',
+        'invalid_deviceid' => 'Device ID inválido',
+        'invalid_url' => 'URL inválida',
+        'invalid_username' => 'Usuario inválido',
+        'invalid_timestamp' => 'Timestamp inválido'
     ]
 ];

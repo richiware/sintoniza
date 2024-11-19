@@ -22,10 +22,16 @@ class API
 		// Exemplos inválidos: device@123, device#456, device/789
 		'deviceid' => '/^[\w.-]+$/',
 
-		// url: Valida URLs HTTP/HTTPS, garantindo que comecem com http:// ou https:// seguido de um domínio
-		// Exemplos válidos: http://example.com, https://test.com
-		// Exemplos inválidos: ftp://example.com, example.com (sem protocolo)
-		'url' => '!^https?://[^/]+!',
+		// url: Valida URLs HTTP/HTTPS ou URLs do antennapod_local com content://
+		// Exemplos válidos: 
+		// - http://example.com
+		// - https://test.com
+		// - antennapod_local:content://com.android.externalstorage.documents/tree/...
+		// Exemplos inválidos: 
+		// - ftp://example.com
+		// - example.com (sem protocolo)
+		// - content:// (sem antennapod_local)
+		'url' => '!^(https?://[^/]+|antennapod_local:content://.+)!',
 
 		// username: Permite apenas letras (maiúsculas e minúsculas), números, hífens e underscores
 		// Exemplos válidos: user123, user-name, user_name
@@ -93,7 +99,7 @@ class API
 			);
 			file_put_contents('logs/inject.log', $log_message, FILE_APPEND);
 
-			$this->error(400, sprintf(__('messages.invalid_%s'), $fieldName));
+			$this->error(400, sprintf(__('errors.invalid_%s'), $fieldName));
 		}
 	}
 

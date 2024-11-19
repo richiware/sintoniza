@@ -155,6 +155,10 @@ return [
     ],
     'erros' => [
         'debug_log' => 'An error happened and has been logged to logs/error.log',
-        'debug_enable' => 'Enable DEBUG constant to see errors directly'
+        'debug_enable' => 'Enable DEBUG constant to see errors directly',
+        'invalid_deviceid' => 'Invalid Device ID',
+        'invalid_url' => 'Invalid URL',
+        'invalid_username' => 'Invalid Username',
+        'invalid_timestamp' => 'Invalid Timestamp'
     ]
 ];
