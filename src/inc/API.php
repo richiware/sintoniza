@@ -91,7 +91,7 @@ class API
 				$fieldName,
 				$input
 			);
-			file_put_contents('../logs/inject.log', $log_message, FILE_APPEND);
+			file_put_contents('logs/inject.log', $log_message, FILE_APPEND);
 
 			$this->error(400, sprintf(__('messages.invalid_%s'), $fieldName));
 		}
