@@ -51,7 +51,7 @@ nano docker-compose.yml
 services:
   sintoniza:
     container_name: sintoniza
-    image: ghcr.io/manualdousuario/sintoniza/sintoniza:latest
+    image: ghcr.io/manualdousuario/sintoniza:latest
     ports:
       - "80:80"
     environment:
