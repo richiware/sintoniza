@@ -8,16 +8,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY default.conf /etc/nginx/sites-available/default
 
 RUN mkdir -p /app
-COPY src/ /app/
+COPY app/ /app/
 
 WORKDIR /app
 RUN composer install --no-interaction --optimize-autoloader
 
-COPY env.sh /usr/local/bin/env.sh
-RUN chmod +x /usr/local/bin/env.sh
-
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
+# Copia e configura permissões do script de inicialização
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN touch /app/logs/cron.log
 RUN echo '* */12 * * * root php "/app/cli/update_feeds_metadata.php" >> /app/logs/cron.log 2>&1' >> /etc/crontab
@@ -27,4 +25,4 @@ RUN chown -R www-data:www-data /app && chmod -R 755 /app
 
 EXPOSE 80
 
-CMD ["/bin/bash", "-c", "/usr/local/bin/env.sh && /usr/local/bin/start.sh"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

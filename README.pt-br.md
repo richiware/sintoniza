@@ -1,13 +1,23 @@
-# Sintoniza
+# 🎧 Sintoniza
 
 [![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/manualdousuario/sintoniza/blob/master/README.md)
 [![pt-br](https://img.shields.io/badge/lang-pt--br-green.svg)](https://github.com/manualdousuario/sintoniza/blob/master/README.pt-br.md)
 
-Este é um servidor de sincronização de podcast baseado no protocolo gPodder.
-Esse projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync)
-Requer PHP 8.0+ e MySQL/MariaDB
+Sintoniza é um poderoso servidor de sincronização de podcasts baseado no protocolo gPodder. Ele ajuda você a manter suas assinaturas, episódios e histórico de reprodução sincronizados em todos os seus dispositivos.
 
-## Aplicativos testados
+Este projeto é um fork do [oPodSync](https://github.com/kd2org/opodsync).
+
+## ✨ Recursos
+
+- Compatibilidade total com GPodder e NextCloud gPodder
+- Rastreamento inteligente de assinaturas e histórico de episódios
+- Sincronização perfeita entre dispositivos
+- Metadados completos de podcasts e episódios
+- Painel de estatísticas globais
+- Interface administrativa para gerenciamento de usuários
+- Desenvolvido com PHP 8.0+ e MySQL/MariaDB
+
+## 📱 Aplicativos Testados
 
 - [AntennaPod](https://github.com/AntennaPod/AntennaPod) 3.5.0 - Android
 
@@ -17,25 +27,27 @@ Requer PHP 8.0+ e MySQL/MariaDB
 - [Kasts](https://invent.kde.org/multimedia/kasts) 21.88 - [Windows](https://cdn.kde.org/ci-builds/multimedia/kasts/)/Android/Linux
 - [gPodder](https://gpodder.github.io/) 3.11.4 - Windows/macOS/Linux/BSD
 
-## Recursos
+## 🐳 Instalação via Docker
 
-- Compatível com GPodder e NextCloud gPodder
-- Armazena histórico de assinaturas e episódios
-- Sincronização entre dispositivos
-- Assinaturas e histórico
-- Estatisticas globais
-- Area administrativa para controle de usuarios
-- Dados completos dos podcasts e episodios
+### Pré-requisitos
 
-## Instalação via Docker
+Você só precisa ter instalado:
+- Docker e docker compose
 
-Após instalar o Docker, vamos criar um *compose*:
+### Configuração
 
-`curl -o ./docker-compose.yml https://raw.githubusercontent.com/manualdousuario/sintoniza/main/docker-compose.yml`
-
-`nano docker-compose.yml`
-
+1. Primeiro, baixe o arquivo compose:
+```bash
+curl -o ./docker-compose.yml https://raw.githubusercontent.com/manualdousuario/sintoniza/main/docker-compose.yml
 ```
+
+2. Configure as definições:
+```bash
+nano docker-compose.yml
+```
+
+3. Atualize as seguintes configurações:
+```yaml
 services:
   sintoniza:
     container_name: sintoniza
@@ -63,7 +75,6 @@ services:
       SMTP_AUTH: true
     depends_on:
       - db
-services:
   db:
     image: mariadb:10.11
     container_name: db
@@ -78,14 +89,30 @@ services:
       - ./mariadb/data:/var/lib/mysql
 ```
 
-Atualize as informações dos environments e em seguida pode rodar `docker compose up -d`
-Todos as tags de environment são obrigatorias.
+Observação: Todas as variáveis de ambiente são obrigatórias.
 
-## Informações adicionais
+4. Inicie os serviços:
+```bash
+docker compose up -d
+```
 
-Utilize o [NGINX Proxy Manager](https://nginxproxymanager.com/) como webservice a frente desse container, isso dará mais proteção e camadas de cache.
-Outros webservices como Caddy tambem funcionarão corretamente.
+## 🛠️ Manutenção
 
-Logs e debugs podem encontrados em `/app/logs`
+### Logs
 
-Uma instalação pública está disponivel em [PC do Manual](https://sintoniza.pcdomanual.com/)
+Visualize os logs da aplicação:
+```bash
+docker-compose logs sintoniza
+```
+
+Informações de debug podem ser encontradas em `/app/logs`
+
+### Segurança
+
+Recomenda-se usar o [NGINX Proxy Manager](https://nginxproxymanager.com/) como serviço web na frente deste container para adicionar camadas de segurança e cache. Outros serviços web como Caddy também funcionarão corretamente.
+
+---
+
+Feito com ❤️! Se tiver dúvidas ou sugestões, abra uma issue que a gente ajuda! 😉
+
+Uma instância pública está disponível em [PC do Manual](https://sintoniza.pcdomanual.com/)

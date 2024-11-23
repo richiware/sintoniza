@@ -1,0 +1,162 @@
+2024-11-17 16:37:32 Recebi uma solicitação GET em api/2/subscriptions/altendorfme/all.json
+2024-11-17 16:37:32 Usuário conectado: altendorfme
+2024-11-17 16:37:32 RETURN:
+{
+    "add": [
+        "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss",
+        "https:\/\/rss.art19.com\/alternate_feeds\/user\/historias-da-firma\/7dCNi3uiB0mGSQhO3tH4G9TYtp-41A9d"
+    ],
+    "remove": [],
+    "update_urls": [],
+    "timestamp": 1731861452
+}
+2024-11-17 16:37:34 Recebi uma solicitação GET em api/2/episodes/altendorfme.json
+2024-11-17 16:37:34 Usuário conectado: altendorfme
+2024-11-17 16:37:34 RETURN:
+{
+    "timestamp": 1731861454,
+    "actions": [
+        {
+            "guid": "0d5418e7-97b9-4c61-bb13-b2270117569b",
+            "timestamp": "2024-11-14T02:42:40Z",
+            "episode": "https:\/\/traffic.omny.fm\/d\/clips\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/0d5418e7-97b9-4c61-bb13-b2270117569b\/audio.mp3?utm_source=Podcast&in_playlist=b1569163-6ad7-4e40-8c8b-acb10100836d",
+            "action": "download",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/b1569163-6ad7-4e40-8c8b-acb10100836d\/podcast.rss"
+        },
+        {
+            "guid": "ab800103-4171-4c8f-9650-b17300e1326a",
+            "timestamp": "2024-11-14T10:20:39Z",
+            "episode": "https:\/\/chrt.fm\/track\/B4F78G\/prfx.byspotify.com\/e\/traffic.omny.fm\/d\/clips\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/ab800103-4171-4c8f-9650-b17300e1326a\/audio.mp3?utm_source=Podcast&in_playlist=b938fccb-6790-4ee1-8dd0-b0e40123233a",
+            "action": "download",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss"
+        },
+        {
+            "guid": "7367e24d-1fef-413e-ab00-b1570007f14e",
+            "timestamp": "2024-11-14T10:20:40Z",
+            "episode": "https:\/\/chrt.fm\/track\/B4F78G\/prfx.byspotify.com\/e\/traffic.omny.fm\/d\/clips\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/7367e24d-1fef-413e-ab00-b1570007f14e\/audio.mp3?utm_source=Podcast&in_playlist=b938fccb-6790-4ee1-8dd0-b0e40123233a",
+            "action": "download",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss"
+        },
+        {
+            "guid": "875ca8ee-7c68-43dd-b9a6-b13400ece27f",
+            "timestamp": "2024-11-14T10:20:47Z",
+            "episode": "https:\/\/chrt.fm\/track\/B4F78G\/prfx.byspotify.com\/e\/traffic.omny.fm\/d\/clips\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/875ca8ee-7c68-43dd-b9a6-b13400ece27f\/audio.mp3?utm_source=Podcast&in_playlist=b938fccb-6790-4ee1-8dd0-b0e40123233a",
+            "action": "download",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss"
+        },
+        {
+            "guid": "89922221-cc70-477a-9906-b12400e42e80",
+            "timestamp": "2024-11-14T10:20:59Z",
+            "episode": "https:\/\/chrt.fm\/track\/B4F78G\/prfx.byspotify.com\/e\/traffic.omny.fm\/d\/clips\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/89922221-cc70-477a-9906-b12400e42e80\/audio.mp3?utm_source=Podcast&in_playlist=b938fccb-6790-4ee1-8dd0-b0e40123233a",
+            "action": "download",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss"
+        },
+        {
+            "guid": "7d70371d8a3aba6911fe43299c1722f5",
+            "timestamp": "2024-11-14T17:52:44Z",
+            "episode": "https:\/\/chrt.fm\/track\/GD6D57\/https:\/\/nerdcast.jovemnerd.com.br\/mau_acompanhado_127.mp3",
+            "action": "download",
+            "podcast": "https:\/\/api.jovemnerd.com.br\/feed-mau-acompanhado\/"
+        },
+        {
+            "guid": "6019811d-e06f-4b31-80fc-e16c9a58bea6",
+            "timestamp": "2024-11-14T13:43:17Z",
+            "started": 0,
+            "position": 2961,
+            "total": 2961,
+            "episode": "https:\/\/anchor.fm\/s\/fcc7aea0\/podcast\/play\/94330500\/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2024-10-12%2F4a1fb236-3985-044c-ca89-a73da2232e7a.mp3",
+            "action": "play",
+            "podcast": "https:\/\/anchor.fm\/s\/fcc7aea0\/podcast\/rss"
+        },
+        {
+            "guid": "https:\/\/jovemnerd.com.br\/nerdcast\/la-do-bunker\/finais-de-pinguim-e-arcane\/",
+            "timestamp": "2024-11-14T13:45:17Z",
+            "started": 0,
+            "position": 117,
+            "total": 3337,
+            "episode": "https:\/\/chrt.fm\/track\/GD6D57\/https:\/\/nerdcast.jovemnerd.com.br\/ladobunker_174.mp3",
+            "action": "play",
+            "podcast": "https:\/\/api.jovemnerd.com.br\/feed-nerdcast\/"
+        },
+        {
+            "guid": "78c3293b-059f-47ba-a385-b219014d7b99",
+            "timestamp": "2024-11-14T14:22:48Z",
+            "started": 5,
+            "position": 645,
+            "total": 3534,
+            "episode": "https:\/\/traffic.omny.fm\/d\/clips\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/78c3293b-059f-47ba-a385-b219014d7b99\/audio.mp3?utm_source=Podcast&in_playlist=b1569163-6ad7-4e40-8c8b-acb10100836d",
+            "action": "play",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/b1569163-6ad7-4e40-8c8b-acb10100836d\/podcast.rss"
+        },
+        {
+            "guid": "78c3293b-059f-47ba-a385-b219014d7b99",
+            "timestamp": "2024-11-14T15:12:35Z",
+            "started": 645,
+            "position": 3534,
+            "total": 3534,
+            "episode": "https:\/\/traffic.omny.fm\/d\/clips\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/78c3293b-059f-47ba-a385-b219014d7b99\/audio.mp3?utm_source=Podcast&in_playlist=b1569163-6ad7-4e40-8c8b-acb10100836d",
+            "action": "play",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/b1569163-6ad7-4e40-8c8b-acb10100836d\/podcast.rss"
+        },
+        {
+            "guid": "3d169920-9f98-42e7-a8d2-b2120107458c",
+            "timestamp": "2024-11-14T15:31:04Z",
+            "started": 0,
+            "position": 1106,
+            "total": 3351,
+            "episode": "https:\/\/traffic.omny.fm\/d\/clips\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/3d169920-9f98-42e7-a8d2-b2120107458c\/audio.mp3?utm_source=Podcast&in_playlist=b1569163-6ad7-4e40-8c8b-acb10100836d",
+            "action": "play",
+            "podcast": "https:\/\/www.omnycontent.com\/d\/playlist\/651a251e-06e1-47e0-9336-ac5a00f41628\/77c99b2d-081f-4d0e-8681-acb101008350\/b1569163-6ad7-4e40-8c8b-acb10100836d\/podcast.rss"
+        },
+        {
+            "guid": "7d70371d8a3aba6911fe43299c1722f5",
+            "timestamp": "2024-11-14T18:30:22Z",
+            "started": 0,
+            "position": 1783,
+            "total": 5828,
+            "episode": "https:\/\/chrt.fm\/track\/GD6D57\/https:\/\/nerdcast.jovemnerd.com.br\/mau_acompanhado_127.mp3",
+            "action": "play",
+            "podcast": "https:\/\/api.jovemnerd.com.br\/feed-mau-acompanhado\/"
+        }
+    ]
+}
+2024-11-17 16:37:34 Recebi uma solicitação POST em api/2/episodes/altendorfme.json
+2024-11-17 16:37:34 Recebi uma solicitação GET em api/2/subscriptions/altendorfme/all.json
+2024-11-17 16:37:34 Usuário conectado: altendorfme
+2024-11-17 16:37:34 RETURN:
+{
+    "timestamp": 1731861454,
+    "update_urls": []
+}
+2024-11-17 16:37:34 Usuário conectado: altendorfme
+2024-11-17 16:37:34 RETURN:
+{
+    "add": [
+        "https:\/\/www.omnycontent.com\/d\/playlist\/f7f86f6a-2fbd-4ac7-ab53-b01900e5d187\/b827e1e5-e175-4b5e-adcd-b0e4012281f7\/b938fccb-6790-4ee1-8dd0-b0e40123233a\/podcast.rss",
+        "https:\/\/rss.art19.com\/alternate_feeds\/user\/historias-da-firma\/7dCNi3uiB0mGSQhO3tH4G9TYtp-41A9d"
+    ],
+    "remove": [],
+    "update_urls": [],
+    "timestamp": 1731861454
+}
+2024-11-18 19:49:06 Recebi uma solicitação GET em 
+2024-11-18 19:49:06 Recebi uma solicitação GET em dashboard
+2024-11-18 19:49:08 Recebi uma solicitação GET em statistics
+2024-11-18 19:49:36 Recebi uma solicitação GET em statistics
+2024-11-18 19:50:34 Recebi uma solicitação GET em statistics
+2024-11-18 19:50:47 Recebi uma solicitação GET em statistics
+2024-11-18 19:50:48 Recebi uma solicitação GET em statistics
+2024-11-18 19:52:46 Recebi uma solicitação  em 
+2024-11-18 19:58:23 Recebi uma solicitação GET em 
+2024-11-18 19:58:23 Recebi uma solicitação GET em dashboard
+2024-11-18 19:58:25 Recebi uma solicitação GET em statistics
+2024-11-18 19:58:27 Recebi uma solicitação GET em statistics
+2024-11-18 19:58:27 Recebi uma solicitação GET em statistics
+2024-11-18 19:58:42 Recebi uma solicitação GET em statistics
+2024-11-23 00:50:19 Recebi uma solicitação GET em 
+2024-11-23 00:50:19 Recebi uma solicitação GET em dashboard
+2024-11-23 00:50:23 Recebi uma solicitação GET em statistics
+2024-11-23 00:50:24 Recebi uma solicitação GET em 
+2024-11-23 00:50:24 Recebi uma solicitação GET em dashboard
+2024-11-23 00:50:27 Recebi uma solicitação GET em logout
+2024-11-23 00:50:27 Recebi uma solicitação GET em 
