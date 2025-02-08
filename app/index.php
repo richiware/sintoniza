@@ -161,13 +161,6 @@ elseif ($gpodder->user && $api->url === 'dashboard') {
 
 	html_foot();
 }
-elseif ($api->url === 'statistics') {
-	html_head('Estatisticas');
-
-	require_once __DIR__ . '/templates/statistics.php';
-
-	html_foot();
-}
 elseif ($gpodder->user) {
 	// Redirect to dashboard if user is logged in
 	header('Location: /dashboard');

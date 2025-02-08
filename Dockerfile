@@ -19,7 +19,6 @@ RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
 RUN touch /app/logs/cron.log
 RUN echo '* */12 * * * root php "/app/cli/update_feeds_metadata.php" >> /app/logs/cron.log 2>&1' >> /etc/crontab
-RUN echo '0 4 * * * root php "/app/cli/update_statistics_cache.php" >> /app/logs/cron.log 2>&1' >> /etc/crontab
 
 RUN chown -R www-data:www-data /app && chmod -R 755 /app
 

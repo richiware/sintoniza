@@ -35,8 +35,6 @@ function html_head($page_name = null, $logged = false) {
 				</a>
 
 				<ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-					<li><a href="/" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-house"></i> <?php echo __('general.home'); ?></a></li>
-					<li><a href="/statistics" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-house"></i> <?php echo __('general.statistics'); ?></a></li>
 					<?php
 						if(isAdmin()) { ?>
 							<li><a href="/admin" class="nav-link px-2 text-white d-flex align-items-center justify-content-center gap-2"><i class="bi bi-shield-lock"></i> <?php echo __('general.administration'); ?></a></li>
