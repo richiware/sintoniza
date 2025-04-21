@@ -14,7 +14,7 @@ class Language {
             error_log("Error connecting to database: " . $e->getMessage());
             $this->db = null;
         }
-        
+
         // Carrega o idioma inicial
         $this->loadInitialLanguage();
     }
@@ -23,10 +23,10 @@ class Language {
         if (isset($_SESSION['user'], $_SESSION['user']->id) && $this->db !== null) {
             try {
                 $result = $this->db->firstRow(
-                    "SELECT language FROM users WHERE id = ?", 
+                    "SELECT language FROM users WHERE id = ?",
                     $_SESSION['user']->id
                 );
-                
+
                 if ($result && isset($result->language) && $this->isValidLanguage($result->language)) {
                     $this->currentLang = $result->language;
                 }
@@ -34,7 +34,7 @@ class Language {
                 error_log("Error loading initial language: " . $e->getMessage());
             }
         }
-        
+
         // Carrega os arquivos de tradução
         $this->loadLanguage($this->currentLang);
     }
@@ -44,10 +44,10 @@ class Language {
         if (isset($_SESSION['user'], $_SESSION['user']->id) && $this->db !== null) {
             try {
                 $result = $this->db->firstRow(
-                    "SELECT language FROM users WHERE id = ?", 
+                    "SELECT language FROM users WHERE id = ?",
                     $_SESSION['user']->id
                 );
-                
+
                 if ($result && isset($result->language) && $this->isValidLanguage($result->language)) {
                     $this->currentLang = $result->language;
                 }
@@ -55,7 +55,7 @@ class Language {
                 error_log("Error getting current language: " . $e->getMessage());
             }
         }
-        
+
         return $this->currentLang;
     }
 
@@ -65,7 +65,7 @@ class Language {
         }
 
         $this->currentLang = $lang;
-        
+
         // Se tem usuário logado e conexão com banco, atualiza no banco
         if (isset($_SESSION['user'], $_SESSION['user']->id) && $this->db !== null) {
             try {
@@ -79,7 +79,7 @@ class Language {
                 return false;
             }
         }
-        
+
         $this->loadLanguage($lang);
         return true;
     }
@@ -118,6 +118,7 @@ class Language {
     public function getAvailableLanguages() {
         return [
             'en' => 'English',
+            'es' => 'Español',
             'pt-BR' => 'Português (Brasil)'
         ];
     }
