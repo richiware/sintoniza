@@ -55,34 +55,34 @@ services:
     ports:
       - "80:80"
     environment:
-      DB_HOST: mariadb
-      DB_USER: user
-      DB_PASS: password
-      DB_NAME: database_name
-      BASE_URL: https://sintoniza.xyz/
-      TITLE: Sintoniza
-      ADMIN_PASSWORD: p@ssw0rd
-      DEBUG: true
-      ENABLE_SUBSCRIPTIONS: true
-      DISABLE_USER_METADATA_UPDATE: false
-      SMTP_USER: email@email.com
-      SMTP_PASS: password
-      SMTP_HOST: smtp.email.com
-      SMTP_FROM: email@email.com
-      SMTP_NAME: "Sintoniza"
-      SMTP_PORT: 587
-      SMTP_SECURE: tls
-      SMTP_AUTH: true
+      DB_HOST: ${DB_HOST:-db}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      BASE_URL: ${BASE_URL:-https://sintoniza.xyz/}
+      TITLE: ${TITLE:-Sintoniza}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-p@ssw0rd}
+      DEBUG: ${DEBUG:-false}
+      ENABLE_SUBSCRIPTIONS: ${ENABLE_SUBSCRIPTIONS:-false}
+      DISABLE_USER_METADATA_UPDATE: ${DISABLE_USER_METADATA_UPDATE:-false}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_FROM: ${SMTP_FROM}
+      SMTP_NAME: ${SMTP_NAME:-"Sintoniza"}
+      SMTP_PORT: ${SMTP_PORT:-587}587
+      SMTP_SECURE: ${SMTP_SECURE:-tls}
+      SMTP_AUTH: ${SMTP_AUTH:-true}
     depends_on:
       - db
   db:
     image: mariadb:10.11
     container_name: db
     environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: database_name
-      MYSQL_USER: database_user
-      MYSQL_PASSWORD: database_password
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
     ports:
       - 3306:3306
     volumes:
@@ -90,6 +90,29 @@ services:
 ```
 
 Note: All environment variables are required.
+
+### Environment Variables
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| DB_HOST | Database host address | db |
+| DB_USER | Database username | user |
+| DB_PASS | Database password | password |
+| DB_NAME | Database name | database_name |
+| BASE_URL | Base URL for the application | https://sintoniza.xyz/ |
+| TITLE | Application title | Sintoniza |
+| ADMIN_PASSWORD | Administrator password | p@ssw0rd |
+| DEBUG | Enable debug mode | true |
+| ENABLE_SUBSCRIPTIONS | Allow subscriptions | true |
+| DISABLE_USER_METADATA_UPDATE | Prevent users from updating their metadata | false |
+| SMTP_USER | SMTP username for email | email@email.com |
+| SMTP_PASS | SMTP password | password |
+| SMTP_HOST | SMTP server host | smtp.email.com |
+| SMTP_FROM | Email address to send from | email@email.com |
+| SMTP_NAME | Sender name for emails | "Sintoniza" |
+| SMTP_PORT | SMTP server port | 587 |
+| SMTP_SECURE | SMTP security type | tls |
+| SMTP_AUTH | Enable SMTP authentication | true |
 
 4. Start the services:
 ```bash
