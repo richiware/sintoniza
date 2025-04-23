@@ -55,7 +55,7 @@ return [
     ],
     'languages' => [
         'en' => 'English',
-        'es' => 'Spanish'
+        'es' => 'Spanish',
         'pt-BR' => 'Portuguese (Brazil)'
     ],
     'admin' => [
