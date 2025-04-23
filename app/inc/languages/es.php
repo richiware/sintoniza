@@ -1,0 +1,165 @@
+<?php
+return [
+    'general' => [
+        'profile' => 'Perfil',
+        'logout' => 'Cerrar sesión',
+        'login' => 'Iniciar sesión',
+        'register' => 'Registrarse',
+        'welcome' => 'Bienvenido/a',
+        'language' => 'Idioma',
+        'save' => 'Grabar',
+        'home' => 'Inicio',
+        'administration' => 'Administración',
+        'subscriptions' => 'Subscripciones',
+        'podcast_sync' => 'Sincronización de podcasts',
+        'site_description' => 'Servidor de sincronización de podcasts basado en el protocolo gPodder con soporte para AntennaPod',
+        'back' => 'Atrás',
+        'add' => 'Agregar',
+        'delete' => 'Borrar',
+        'download' => 'Descargar',
+        'update' => 'Actualizar',
+        'hello' => 'Hola, ',
+        'duration' => 'Duración',
+        'statistics' => 'Estadísticas',
+        'username' => 'Usuario',
+        'password' => 'Contraseña',
+        'email' => 'Email',
+        'min_password_length' => 'Contraseña (mínimo 8 caracters)',
+        'latest_updates' => 'Últimas actualizaciones',
+        'devices' => 'Dispositivos',
+        'forgot_password' => '¿Olvidó su contraseña?',
+        'send_reset_link' => 'Enviar enlace para restablecer',
+        'reset_password' => 'Restablecer contraseña',
+        'new_password' => 'Nueva contraseña',
+    ],
+    'errors' => [
+        'schema_file_not_found' => 'Archivo de esquema MySQL no encontrado',
+        'sql_error' => 'Error ejecutando instrucción SQL: %s\nLa instrucción era: %s'
+    ],
+    'profile' => [
+        'change_password' => 'Cambiar contraseña',
+        'current_password' => 'Contraseña actual',
+        'new_password' => 'Nueva contraseña',
+        'confirm_password' => 'Confirmar contraseña',
+        'language_settings' => 'Configuración de idioma',
+        'select_language' => 'Elija idioma',
+        'settings_saved' => 'Configuración grabada con éxito',
+        'error_saving' => 'Error grabando configuración',
+        'language_updated' => 'Idioma actualizado con éxito',
+        'password_changed' => 'Contraseña cambiada con éxito',
+        'passwords_dont_match' => 'Las nuevas contraseñas no coinciden',
+        'min_password_length' => 'Mínimo 8 caracteres',
+        'timezone_settings' => 'Configuración de zona horaria',
+        'select_timezone' => 'Elija la zona horaria',
+        'timezone_updated' => 'Zona horaria actualizada con éxito'
+    ],
+    'languages' => [
+        'en' => 'English',
+        'es' => 'Spanish'
+        'pt-BR' => 'Portuguese (Brazil)'
+    ],
+    'admin' => [
+        'add_user' => 'Agregar usuario nuevo',
+        'user_list' => 'Lista de usuarios',
+        'confirm_delete' => '¿Está seguro de que quiere borrar este usuario?',
+        'user_deleted' => 'Usuario borrado con éxito',
+        'user_registered' => 'Usuario registrado con éxito'
+    ],
+    'dashboard' => [
+        'secret_user' => 'Usuario secreto de GPodder',
+        'secret_user_note' => '(Use este nombre de usuario en GPodder Desktop, porque no soporta contraseñas)',
+        'latest_updates' => 'Últimas 10 actualizaciones',
+        'registered_devices' => 'Dispositivos registrados',
+        'no_info' => 'No hay información disponible para este origen',
+        'last_update' => 'Última actualización',
+        'update_all_metadata' => 'Actualice todos los metadatos de orígenes',
+        'cron_notice' => 'Las actualizaciones de los metadatos de orígenes están configuradas para que las realizen rutinas directamente en el servidor, las actualizaciones se realizan una vez cada hora.',
+        'opml_feed' => 'OPML Feed'
+    ],
+    'devices' => [
+        'mobile' => 'Móvil',
+        'desktop' => 'Escritorio',
+        'unavailable' => 'No disponible'
+    ],
+    'actions' => [
+        'played' => 'Reproducido',
+        'downloaded' => 'Descargado',
+        'deleted' => 'Borrado',
+        'unavailable' => 'No disponible',
+        'on' => 'el',
+        'at' => 'a las',
+        'from' => 'de',
+    ],
+    'messages' => [
+        'subscriptions_disabled' => 'Suscripciones desactivadas.',
+        'invalid_captcha' => 'CAPTCHA inválido.',
+        'login_success' => 'Su sesión está iniciada, puede cerrar esto y volver a la aplicación.',
+        'metadata_warning' => 'Puede que falten títulos e imágenes debido a los seguimientos y publicidades utilizados por algunos proveedores de podcasts.',
+        'app_requesting_access' => 'Una aplicación está pidiendo acceso a su cuenta.',
+        'fill_captcha' => 'Ingrese el número siguiente:',
+        'auto_url_error' => 'No se puede detectar automáticamente el URL de la aplicación. Asigne un valor a la constante o variable de entorno BASE_URL.',
+        'invalid_url' => 'URL inválido:',
+        'device_id_not_registered' => 'ID de dispositivo no registrado',
+        'invalid_username' => 'Nombre de usuario inválido',
+        'invalid_username_password' => 'Combinación inválida de usuario y contraseña',
+        'no_username_password' => 'No se indicó usuario o contraseña',
+        'session_cookie_required' => 'Se requiere una cookie de sesión',
+        'session_expired' => 'La cookie de sesión expiró y no se proporcionó una cabecera de autenticación',
+        'user_not_exists' => 'El usuario no existe',
+        'logged_out' => 'Sesión cerrada',
+        'unknown_login_action' => 'Acción de inicio de sesión desconocida:',
+        'invalid_gpodder_token' => 'El token de gpodder no es válido',
+        'invalid_device_id' => 'ID de dispositivo no válido',
+        'invalid_input_array' => 'Ingreso incorrecto: se requiere un arreglo de una línea por origen',
+        'not_implemented' => 'Not implemented yet',
+        'invalid_array' => 'No se encontró un arreglo válido',
+        'missing_action_key' => 'Falta la clave de acción',
+        'nextcloud_undefined_endpoint' => 'No está definido el endpoint de la API de Nextcloud',
+        'output_format_not_implemented' => 'Formato de salida no implementado',
+        'email_already_registered' => 'Esa dirección de correo ya está registrada',
+        'subscriptions_metadata' => 'Puede que falten títulos e imágenes debido a los seguimientos y publicidades utilizados por algunos proveedores de podcasts.',
+        'user_not_logged' => 'No se inició la sesión del usuario',
+        'current_password_incorrect' => 'Contraseña actual incorrecta',
+        'invalid_language' => 'Idioma inválido',
+        'invalid_timezone' => 'Zona horaria inválida',
+        'invalid_username' => 'Nombre de usuario inválido. Se permiten: \w[\w\d_-]+',
+        'username_blocked' => 'Este nombre de usuario está bloqueado, por favor elija otro.',
+        'password_too_short' => 'Contraseña muy corta',
+        'email_invalid' => 'Dirección de correo inválida',
+        'username_already_exists' => 'Nombre de usuario ya existe'
+    ],
+    'statistics' => [
+        'registered_users' => 'Usuarios registrados',
+        'registered_devices' => 'Dispositivos registrados',
+        'top_10' => 'Los 10 principales',
+        'most_subscribed' => 'más suscritos',
+        'most_downloaded' => 'más descargados',
+        'most_played' => 'más reproducidos'
+    ],
+    'footer' => [
+        'managed_by' => 'Instancia manejada y mantenida por',
+        'with_love_by' => 'Con ❤️ por',
+        'version' => 'Versión'
+    ],
+    'home' => [
+        'intro' => 'Este es un servidor de sincronización de podcasts basado en el "protocolo" gPodder.',
+        'fork_note' => 'Este proyecto es un fork de',
+        'github_project' => 'Projecto publicado en Github',
+        'tested_apps' => 'Aplicaciones probadas'
+    ],
+    'forget_password' => [
+        'email_sent' => 'Enviamos un correo electrónico de restablecimiento de contraseña a su dirección de correo.',
+        'email_not_registered' => 'La dirección de correo electrónico que ingresó no está registrada.'
+    ],
+    'db' => [
+        'schema_not_found' => 'archivo de esquema mysql.sql no encontrado'
+    ],
+    'erros' => [
+        'debug_log' => 'Ocurrió un error y se registró en logs/error.log',
+        'debug_enable' => 'Establezca la constante DEBUG para ver los errores directamente',
+        'invalid_deviceid' => 'ID inválido de dispositivo',
+        'invalid_url' => 'URL inválido',
+        'invalid_username' => 'Nombre de usuario inválido',
+        'invalid_timestamp' => 'Hora inválida'
+    ]
+];
