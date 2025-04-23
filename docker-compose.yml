@@ -5,9 +5,9 @@ services:
     ports:
       - "80:80"
     environment:
-      DB_HOST: mariadb
-      DB_USER: user
-      DB_PASS: password
+      DB_HOST: db
+      DB_USER: database_user
+      DB_PASS: database_password
       DB_NAME: database_name
       BASE_URL: https://sintoniza.xyz/
       TITLE: Sintoniza
@@ -25,7 +25,6 @@ services:
       SMTP_AUTH: true
     depends_on:
       - db
-services:
   db:
     image: mariadb:10.11
     container_name: db
