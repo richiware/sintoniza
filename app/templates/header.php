@@ -26,8 +26,8 @@ function html_head($page_name = null, $logged = false) {
 	<meta property="og:description" content="<?php echo htmlspecialchars(__('general.site_description')) ; ?>" />
 	<meta property="og:image" content="/assets/opengraph.png" />
 </head>
-<body class="bg-light py-3">
-	<div class="container">
+<body class="bg-light">
+	<div class="container py-3">
 		<header class="bg-dark bg-gradient rounded-3 shadow pt-4 pt-md-3 pb-4 pb-md-3 ps-4 pe-4 text-bg-dark">
 			<div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
 				<a href="/" class="d-flex align-items-center me-lg-3 text-white text-decoration-none">
