@@ -57,7 +57,7 @@ set_exception_handler(function ($e) {
 	exit;
 });
 
-$db = new DB(DB_HOST, DB_NAME, DB_USER, DB_PASS);
+$db = new DB(DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS);
 $api = new API($db);
 
 try {

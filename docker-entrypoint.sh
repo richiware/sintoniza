@@ -2,7 +2,7 @@
 
 ###########################################
 # Sintoniza Docker Entrypoint
-# 
+#
 # Este script inicializa o container do Sintoniza:
 # - Valida e configura variáveis de ambiente
 # - Configura SMTP e outras configurações opcionais
@@ -67,31 +67,34 @@ log_success "Todas as variáveis de ambiente obrigatórias estão definidas"
 log_info "Configurando arquivo de variáveis de ambiente..."
 
 # Variáveis obrigatórias
-echo "DB_HOST=${DB_HOST}" >> /app/.env
-echo "DB_USER=${DB_USER}" >> /app/.env
-echo "DB_PASS=${DB_PASS}" >> /app/.env
-echo "DB_NAME=${DB_NAME}" >> /app/.env
-echo "BASE_URL=${BASE_URL}" >> /app/.env
-echo "TITLE=${TITLE}" >> /app/.env
+echo "DB_HOST=${DB_HOST}" >>/app/.env
+if [[ -z "${DB_PORT}" ]]; then
+    echo "DB_PORT=${DB_PORT}" >>/app/.env
+fi
+echo "DB_USER=${DB_USER}" >>/app/.env
+echo "DB_PASS=${DB_PASS}" >>/app/.env
+echo "DB_NAME=${DB_NAME}" >>/app/.env
+echo "BASE_URL=${BASE_URL}" >>/app/.env
+echo "TITLE=${TITLE}" >>/app/.env
 
 # Configurações SMTP
-echo "SMTP_USER=${SMTP_USER}" >> /app/.env
-echo "SMTP_PASS=${SMTP_PASS}" >> /app/.env
-echo "SMTP_HOST=${SMTP_HOST}" >> /app/.env
-echo "SMTP_FROM=${SMTP_FROM}" >> /app/.env
-echo "SMTP_NAME=${SMTP_NAME}" >> /app/.env
+echo "SMTP_USER=${SMTP_USER}" >>/app/.env
+echo "SMTP_PASS=${SMTP_PASS}" >>/app/.env
+echo "SMTP_HOST=${SMTP_HOST}" >>/app/.env
+echo "SMTP_FROM=${SMTP_FROM}" >>/app/.env
+echo "SMTP_NAME=${SMTP_NAME}" >>/app/.env
 
 # Variáveis opcionais
 if [ -n "${DEBUG}" ]; then
-    echo "DEBUG=${DEBUG}" >> /app/.env
+    echo "DEBUG=${DEBUG}" >>/app/.env
 fi
 
 if [ -n "${ENABLE_SUBSCRIPTIONS}" ]; then
-    echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >> /app/.env
+    echo "ENABLE_SUBSCRIPTIONS=${ENABLE_SUBSCRIPTIONS}" >>/app/.env
 fi
 
 if [ -n "${DISABLE_USER_METADATA_UPDATE}" ]; then
-    echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >> /app/.env
+    echo "DISABLE_USER_METADATA_UPDATE=${DISABLE_USER_METADATA_UPDATE}" >>/app/.env
 fi
 
 log_success "Variáveis de ambiente configuradas"
@@ -106,7 +109,7 @@ log_success "Serviço Cron iniciado"
 
 # Funções de verificação de serviços
 check_nginx() {
-    if ! pgrep nginx > /dev/null; then
+    if ! pgrep nginx >/dev/null; then
         log_error "Falha ao iniciar Nginx"
     else
         log_success "Nginx iniciado com sucesso"
@@ -114,7 +117,7 @@ check_nginx() {
 }
 
 check_php_fpm() {
-    if ! pgrep php-fpm > /dev/null; then
+    if ! pgrep php-fpm >/dev/null; then
         log_error "Falha ao iniciar PHP-FPM"
     else
         log_success "PHP-FPM iniciado com sucesso"
